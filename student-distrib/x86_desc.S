@@ -11,6 +11,7 @@
 .globl tss, tss_desc_ptr, ldt, ldt_desc_ptr
 .globl gdt_ptr
 .globl idt_desc_ptr, idt
+.globl gdt_desc_ptr
 
 .align 4
 
@@ -25,8 +26,18 @@ ldt_size:
 ldt_desc:
     .word KERNEL_LDT
     .long ldt
-
     .align 4
+
+# gdt_desc:
+#     .word 0
+#     .word gdt_bottom-gdt -1
+#     .long gdt  
+
+gdt_desc_ptr:
+    .word gdt_bottom - gdt - 1
+    .long gdt
+    .align  16
+
 tss:
 _tss:
     .rept 104
@@ -93,6 +104,7 @@ ldt_bottom:
 
 .align 4
     .word 0 # Padding
+    
 idt_desc_ptr:
     .word idt_bottom - idt - 1
     .long idt

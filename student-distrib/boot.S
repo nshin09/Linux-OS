@@ -4,7 +4,7 @@
 #define ASM     1
 
 #include "multiboot.h"
-#include "x86_desc.h"
+# include "x86_desc.h"
 
 .text
 
@@ -26,7 +26,7 @@ _start:
 continue:
     # Load the GDT (lgdt)
     # Execute the LGDT instruction to load the GDTR register with the base address of the GDT
-    lgdt    gdt_desc
+    lgdt    gdt_desc_ptr
     # Load CS with the new descriptor value
     ljmp    $KERNEL_CS, $keep_going
 

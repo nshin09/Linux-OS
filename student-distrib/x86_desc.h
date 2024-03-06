@@ -113,6 +113,7 @@ typedef struct __attribute__((packed)) tss_t {
 
 /* Some external descriptors declared in .S files */
 extern x86_desc_t gdt_desc;
+extern x86_desc_t gdt_desc_ptr;
 
 extern uint16_t ldt_desc;
 extern uint32_t ldt_size;
@@ -208,6 +209,19 @@ do {                                    \
 #define lldt(desc)                      \
 do {                                    \
     asm volatile ("lldt %%ax"           \
+            :                           \
+            : "a" (desc)                \
+            : "memory"                  \
+    );                                  \
+} while (0)
+
+/* Load the global descriptor table (LDT) register.  This macro takes a
+ * 16-bit index into the GDT, which points to the LDT entry.  x86 then
+ * reads the GDT's LDT descriptor and loads the base address specified
+ * in that descriptor into the LDT register */
+#define lgdt(desc)                      \
+do {                                    \
+    asm volatile ("lgdt %%ax"           \
             :                           \
             : "a" (desc)                \
             : "memory"                  \
