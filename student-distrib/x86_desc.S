@@ -28,15 +28,16 @@ ldt_desc:
     .long ldt
     .align 4
 
-# gdt_desc:
-#     .word 0
-#     .word gdt_bottom-gdt -1
-#     .long gdt  
-
-gdt_desc_ptr:
+gdt_desc:
     .word gdt_bottom - gdt - 1
     .long gdt
-    .align  16
+    .align  4
+    .word 0
+
+# gdt_desc_ptr:
+#     .word gdt_bottom - gdt - 1
+#     .long gdt
+#     .align  16
 
 tss:
 _tss:
@@ -108,8 +109,6 @@ ldt_bottom:
 idt_desc_ptr:
     .word idt_bottom - idt - 1
     .long idt
-
-
     .align  16
 idt:
 _idt:
