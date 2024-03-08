@@ -215,19 +215,6 @@ do {                                    \
     );                                  \
 } while (0)
 
-/* Load the global descriptor table (LDT) register.  This macro takes a
- * 16-bit index into the GDT, which points to the LDT entry.  x86 then
- * reads the GDT's LDT descriptor and loads the base address specified
- * in that descriptor into the LDT register */
-// #define lgdt(desc)                      \
-// do {                                    \
-//     asm volatile ("lgdt %%ax"           \
-//             :                           \
-//             : "a" (desc)                \
-//             : "memory"                  \
-//     );                                  \
-// } while (0)
-
 #endif /* ASM */
 
 #endif /* _x86_DESC_H */
