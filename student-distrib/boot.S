@@ -6,6 +6,7 @@
 #include "multiboot.h"
 # include "x86_desc.h"
 
+
 .text
 
     # Multiboot header (required for GRUB to boot us)
@@ -24,6 +25,8 @@ _start:
     jmp     continue
 
 continue:
+    # Execute the LIDT to load IDT
+    lidt    idt
     # Load the GDT (lgdt)
     # Execute the LGDT instruction to load the GDTR register with the base address of the GDT
     lgdt    gdt_desc
