@@ -142,15 +142,11 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
-<<<<<<< HEAD
-    idt_initializer();
-=======
 
     //Initialize idt - couldn't be intialized in boot.S b/c stuff
     //hadn't been set up yet
     idt_initializer();
 
->>>>>>> idt_testing_branch
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
@@ -167,3 +163,4 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }
+

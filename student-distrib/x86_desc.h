@@ -215,8 +215,6 @@ do {                                    \
     );                                  \
 } while (0)
 
-<<<<<<< HEAD
-=======
 /* Load the global descriptor table (LDT) register.  This macro takes a
  * 16-bit index into the GDT, which points to the LDT entry.  x86 then
  * reads the GDT's LDT descriptor and loads the base address specified
@@ -230,7 +228,6 @@ do {                                    \
  *     );                                  \
  * } while (0) */
 
->>>>>>> idt_testing_branch
 #endif /* ASM */
 
 #endif /* _x86_DESC_H */

@@ -5,7 +5,6 @@
 
 #include "multiboot.h"
 # include "x86_desc.h"
-# include "idt.h"
 
 
 .text
@@ -31,9 +30,6 @@ continue:
     # Load the GDT (lgdt)
     # Execute the LGDT instruction to load the GDTR register with the base address of the GDT
     lgdt    gdt_desc
-    # Load idt
-    call idt_initializer
-    lidt    idt
     # Load CS with the new descriptor value
     ljmp    $KERNEL_CS, $keep_going
 
