@@ -5,12 +5,12 @@
 
 //* COMMENT OUT TO TEST BASIC INITIALIZATION
 void print_interrupt(){
-    printf("Received an Interrupt");
+    printf("Received an Interrupt    ");
 }
 //*/
 
 void idt_initializer(){
-    printf("Initializing idt - ");
+    //printf("Initializing idt - ");
 
     int i;
     for(i=0; i<256; i++){
@@ -34,6 +34,6 @@ void idt_initializer(){
         idt[i].reserved4 = 1;
     }
 
-    printf("Idt is initialized (i think)\n");
+    //printf("Idt is initialized \n");
 }
 
