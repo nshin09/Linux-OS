@@ -147,11 +147,12 @@ void entry(unsigned long magic, unsigned long addr) {
     //Initialize idt - couldn't be intialized in boot.S b/c stuff
     //hadn't been set up yet
     idt_initializer();
+
     //When general_handler from idt_asm.S is called here, it causes a bootloop
     //on the iret command. Changing it to ret makes it not bootloop. Both ways
     //bootloop when interrupts are enabled below.
     // general_handler();
-
+    
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
