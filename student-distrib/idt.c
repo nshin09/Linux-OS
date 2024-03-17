@@ -2,6 +2,7 @@
 #include "x86_desc.h"
 #include "lib.h"
 #include "idt_asm.h"
+#include "device_handlers.h"
 static char* exceptions[32] = 
 {
 "Division_Error", "Debug", "Non_maskable_Interrupt", "Breakpoint", "Overflow"
@@ -78,7 +79,8 @@ void idt_initializer(){
         // SET_IDT_ENTRY(idt[28],  Hypervisor_Injection_Exception);
         // SET_IDT_ENTRY(idt[29],  VMM_Communication_Exception);
         // SET_IDT_ENTRY(idt[30],  Security_Exception);
-
+    idt[0x28].present = 1; // 0x28 represents the RTC port described in the IDT 
+    SET_IDT_ENTRY(idt[0x28], RTC_HANDLER);
     //printf("Idt is initialized \n");
 }
 
