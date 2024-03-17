@@ -43,7 +43,7 @@ void enable_irq(uint32_t irq_num) {
         irq_num -= 8;
     }
     value = inb(port) & ~(1 << irq_num); // we went to clear the mask 
-    outb(port, value);   
+    outb(value, port);   
 }
 
 /* Disable (mask) the specified IRQ */
@@ -58,7 +58,7 @@ void disable_irq(uint32_t irq_num) {
         irq_num -= 8;
     }
     value = inb(port) | (1 << irq_num); // we went to set the mask 
-    outb(port, value);     
+    outb(value, port);     
 }
 
 /* Send end-of-interrupt signal for the specified IRQ */
