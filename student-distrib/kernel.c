@@ -11,6 +11,7 @@
 #include "idt.h"
 #include "idt_asm.h"
 #include "rtc.h"
+#include "keyboard.h"
 #define RUN_TESTS
 
 /* Macros. */
@@ -145,10 +146,8 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
-
-    //Initialize idt - couldn't be intialized in boot.S b/c stuff
-    //hadn't been set up yet
     
+    initialize_keyboard();
     rtc_init();
     //When general_handler from idt_asm.S is called here, it causes a bootloop
     //on the iret command. Changing it to ret makes it not bootloop. Both ways

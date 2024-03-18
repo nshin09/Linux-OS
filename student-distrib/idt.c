@@ -88,12 +88,27 @@ void idt_initializer(){
         // SET_IDT_ENTRY(idt[28],  Hypervisor_Injection_Exception);
         // SET_IDT_ENTRY(idt[29],  VMM_Communication_Exception);
         // SET_IDT_ENTRY(idt[30],  Security_Exception);
+    //RTC Data    
+    idt[0x21].present = 1;
+    idt[0x21].reserved0 = 0; 
+    idt[0x21].reserved1 = 1;
+    idt[0x21].reserved2 = 1;
+    idt[0x21].reserved3 = 0;
+    idt[0x21].reserved4 = 0;
+    idt[0x21].size = 1;
+    idt[0x21].seg_selector = KERNEL_CS;
+    idt[0x21].dpl = 0;
+    SET_IDT_ENTRY(idt[0x21], KEYBOARD_HANDLER);
+
     idt[0x28].present = 1;
-    idt[0x28].reserved0 = 0; 
-    idt[0x28].reserved0 = 1;
-    idt[0x28].reserved0 = 1;
-    idt[0x28].reserved0 = 1;
-    idt[0x28].reserved0 = 1;// 0x28 represents the RTC port described in the IDT 
+    idt[0x28].reserved0 = 0;  
+    idt[0x28].reserved1 = 1;
+    idt[0x28].reserved2 = 1;
+    idt[0x28].reserved3 = 0;
+    idt[0x28].reserved4 = 0;
+    idt[0x28].size = 1;
+    idt[0x28].seg_selector = KERNEL_CS;
+    idt[0x28].dpl = 0; // 0x28 represents the RTC port described in the IDT 
     SET_IDT_ENTRY(idt[0x28], RTC_HANDLER);
     //printf("Idt is initialized \n");
 }

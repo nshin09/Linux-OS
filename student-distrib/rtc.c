@@ -7,6 +7,11 @@ volatile int rtc_int;
 void rtc_init()
 {
     cli();
+    outb(0x8A, 0x70);
+    outb(0x20,0x71);
+    sti();
+
+    cli();
     outb(0x8B, 0x70); // 0x70 is the rtc port index and 0x8B is rtc status register B. 
     char prev = inb(0x71); // read from the CMOS port (0x71)
 
@@ -24,6 +29,7 @@ void rtc_handler()
     inb(0x71);		// just throw away contents
     rtc_int = 1;
     sti();
+    
     send_eoi(0x08); // end of instruction for the irq_8. 
 }
 

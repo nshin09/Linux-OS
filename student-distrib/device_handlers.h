@@ -4,4 +4,5 @@
 #include "rtc.h"
 
 void RTC_HANDLER();
+void KEYBOARD_HANDLER();
 #endif
