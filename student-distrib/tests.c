@@ -7,7 +7,7 @@
 
 /* format these macros as you see fit */
 #define TEST_HEADER 	\
-	printf("[TEST %s] Running %s at %s:%d\n", __FUNCTION__, __FUNCTION__, __FILE__, __LINE__)
+	printf("[TEST %s] Running %s at %s:%d  ", __FUNCTION__, __FUNCTION__, __FILE__, __LINE__)
 #define TEST_OUTPUT(name, result)	\
 	printf("[TEST %s] Result = %s\n", name, (result) ? "PASS" : "FAIL");
 
@@ -65,6 +65,6 @@ int divide_by_zero_test(){
 /* Test suite entry point */
 void launch_tests(){
 	TEST_OUTPUT("idt_test", idt_test());
-	// TEST_OUTPUT("divide_by_zero_test", divide_by_zero_test());
+	TEST_OUTPUT("divide_by_zero_test", divide_by_zero_test());
 	// launch your tests here
 }

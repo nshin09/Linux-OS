@@ -43,14 +43,14 @@ void idt_initializer(){
         }
 
         //Load the other values of all idt entries
-        idt[i].dpl = 0;
-        idt[i].seg_selector = 0x0000;
-        idt[i].size = 0;
-        idt[i].reserved0 = 1;
+        idt[i].dpl = 0;  //protection level
+        idt[i].seg_selector = KERNEL_CS;
+        idt[i].size = 1;
+        idt[i].reserved0 = 0;
         idt[i].reserved1 = 1;
         idt[i].reserved2 = 1;
-        idt[i].reserved3 = 1;
-        idt[i].reserved4 = 1;
+        idt[i].reserved3 = 0;
+        idt[i].reserved4 = 0;
 
 
     }
