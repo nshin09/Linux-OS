@@ -31,8 +31,8 @@ ldt_desc:
 gdt_desc:
     .word gdt_bottom - gdt - 1
     .long gdt
-    .align  4
-    .word 0
+    .align  16
+
 
 # gdt_desc_ptr:
 #     .word gdt_bottom - gdt - 1

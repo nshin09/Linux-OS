@@ -25,11 +25,12 @@ _start:
     jmp     continue
 
 continue:
-    # Execute the LIDT to load IDT
-    lidt    idt
     # Load the GDT (lgdt)
     # Execute the LGDT instruction to load the GDTR register with the base address of the GDT
     lgdt    gdt_desc
+    # Execute the LIDT to load IDT
+    lidt    idt_desc_ptr
+   
     # Load CS with the new descriptor value
     ljmp    $KERNEL_CS, $keep_going
 

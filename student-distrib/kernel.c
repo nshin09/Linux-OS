@@ -139,6 +139,8 @@ void entry(unsigned long magic, unsigned long addr) {
     }
 
     /* Init the PIC */
+    printf("calling idt initializer\n");
+    idt_initializer();
     i8259_init();
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
@@ -146,7 +148,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
     //Initialize idt - couldn't be intialized in boot.S b/c stuff
     //hadn't been set up yet
-    idt_initializer();
+    
     rtc_init();
     //When general_handler from idt_asm.S is called here, it causes a bootloop
     //on the iret command. Changing it to ret makes it not bootloop. Both ways
