@@ -6,8 +6,11 @@
 // page_t page_table[1024] __attribute__((aligned(4096)));
 // page_t page_VGA[1024] __attribute__((aligned(4096)));
 
-
-void initPaging(){
+/* void init_Paging(void)
+ * Inputs: void
+ * Return Value: void
+ * Function: initializes paging by filling in appropriate tables*/
+ void initPaging(){
     int i;
     // Fill the page directory with values
 
@@ -42,7 +45,7 @@ void initPaging(){
         page_table[i].read_write = 1;
         page_table[i].addr = i;
     
-        // page_VGA[i].available = 0;
+        // page_VGA[i].available = 0; we do not use this vga table as none of the values are present. 
         // page_VGA[i].global_page = 0;
         // page_VGA[i].PAT = 0;
         // page_VGA[i].accessed = 0;
@@ -105,13 +108,7 @@ void initPaging(){
 
 }
 
-void createVirtualAddressSpace(){
-    // Set up new page directory
 
-    // I don't know if this function is needed. 
-    // I'm taking it from Appendix C in the assignment
-    // but I have no clue when it would be called.
-}
 
 
 

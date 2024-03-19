@@ -15,7 +15,7 @@
 .globl page_table,page_directory
 
 .align 4
-
+;# added page_table and directory array, statically allocate memory.
 .align 4096
 page_table:
     .rept 1024

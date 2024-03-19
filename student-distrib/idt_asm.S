@@ -8,6 +8,11 @@
 ; /*
 ;  *These first functions save all flags and refisters and then jump to handlers lower in this file.
 ;  s*/
+/* void Exception Handlers();
+ * Inputs: None
+ * Return Value: None
+ * Function: Prepares arguments to be called in respective handler.
+ */
 .align 4
 Division_Error: 
     pushl $0 
@@ -141,9 +146,14 @@ SIMD_Floating_Point_Exception:
     pushfl 
     jmp SIMD_Floating_Point_Handler
 
-; /*
-;  * These handlers each call different c functions and then restore all flags and registers.
-;  */
+ /*
+;  *These first functions save all flags and refisters and then jump to handlers lower in this file.
+;  s*/
+/* void Exception Handlers();
+ * Inputs: None
+ * Return Value: None
+ * Function: Prepares arguments to be called in respective handler.
+ */
 Division_Error_Handler:
     call div_error_handler /* Change this to print exception once we get exception to work. */
     popfl

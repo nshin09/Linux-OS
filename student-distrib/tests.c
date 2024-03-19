@@ -30,6 +30,10 @@ static inline void assertion_failure(){
  * Coverage: Load IDT, IDT definition
  * Files: x86_desc.h/S
  */
+ /* void: idt test(void)
+ * Inputs: void
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: tests if IDT is loaded */
 int idt_test(){
 	TEST_HEADER;
 
@@ -45,7 +49,10 @@ int idt_test(){
 
 	return result;
 }
-
+/* void: divide_by_zero_test(void)
+ * Inputs: void
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: tests if div by zero generates interrupt*/
 int divide_by_zero_test(){
 	TEST_HEADER;
 	int a = 21;
@@ -57,7 +64,10 @@ int divide_by_zero_test(){
 
 }
 
-
+/* void: paging_test(void)
+ * Inputs: void
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: tests if pointers to start of vga mem and kern mem are actually valid*/
 int paging_test(){
 	TEST_HEADER;
 	int result = PASS;
@@ -76,7 +86,10 @@ int paging_test(){
 	printf(" p val: %d\n", *pointer);
 	return result;
 }
-
+/* void: page_fault_test(void)
+ * Inputs: void
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: tests if page faults if pointer not valid*/
 int page_fault_test()
 {
 	TEST_HEADER;
@@ -88,7 +101,10 @@ int page_fault_test()
 	return FAIL; // should never get here
 }
 
-
+/* void: test_debug_error(void)
+ * Inputs: void
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: tests if debug error happens*/
 int test_debug_error(){
 	do {                                    \
 		asm volatile ("call Debug"          \
@@ -97,7 +113,10 @@ int test_debug_error(){
 
 	return FAIL;
 }
-
+/* void: bound_range_exception(void)
+ * Inputs: void
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: tests bound_range handler */
 int bound_range_exception(){
 	do {                                    \
 		asm volatile ("call Bound_Range_Exceeded"          \

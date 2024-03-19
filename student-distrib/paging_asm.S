@@ -1,5 +1,10 @@
 #define ASM 1
 
+/* void set_PDBR();
+ * Inputs: pagedirectory pointer
+ * Return Value: None
+ * Function: moves the pointer to the cr3 reg
+ */
 .text
 .globl set_PDBR
 set_PDBR:
@@ -15,7 +20,11 @@ set_PDBR:
     leave
     ret
 
-
+/* void enable_paging();
+ * Inputs: None
+ * Return Value: None
+ * Function: performs bit or routines to cr4 and cr0
+ */
 .globl enable_paging
 enable_paging:
     ; #Setup

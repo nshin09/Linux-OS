@@ -3,7 +3,10 @@
 #include "lib.h"
 // global variable to be used as a flag if int occurred
 volatile int rtc_int;
-
+/* void: rtc_init(void)
+ * Inputs: void
+ * Return Value: void
+ * Function: Initialize rtc, used osDev for documentation */
 void rtc_init()
 {
     cli();
@@ -22,6 +25,10 @@ void rtc_init()
     // rtc_change_rate(DEFAULT_FREQUENCY);
 
 }
+/* void: rtc_handler(void)
+ * Inputs: void
+ * Return Value: void
+ * Function: Calls handler for rtc to generate interrupt */
 void rtc_handler()
 {
     cli();
@@ -33,16 +40,16 @@ void rtc_handler()
 
     send_eoi(0x08); // end of instruction for the irq_8. 
 }
-
+// unused for cp1
 int32_t rtc_open(const uint8_t* filename) {
     rtc_change_rate(2); // 2 represents the minimum frequency
     return 0;
 }
-
+// unused for cp1
 int32_t rtc_close(int32_t fd) {
     return 0;
 }
-
+// unused for cp1
 int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes) {
     rtc_int = 0;
 
@@ -52,7 +59,7 @@ int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes) {
     rtc_int = 0;
     return 0;
 }
-
+// unused for cp1
 int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes) {
 
    if(rtc_change_rate(*(uint8_t*)(buf)) == 0);
@@ -62,6 +69,7 @@ int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes) {
 
     return -1;
 }
+// unused for cp1
 int32_t rtc_change_rate(int32_t frequency)
 {
     int log2 = 0;

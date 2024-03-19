@@ -58,7 +58,7 @@ typedef union page {
 //The page directory. Set up in paging.c
 extern page_table_t page_directory[1024] __attribute__((aligned(4096)));
 extern page_t page_table[1024] __attribute__((aligned(4096)));
-extern page_t page_VGA[1024] __attribute__((aligned(4096)));
+// extern page_t page_VGA[1024] __attribute__((aligned(4096))); unused array
 
 
 extern void initPaging();
