@@ -8,7 +8,7 @@ void rtc_init()
 {
     cli();
     outb(0x8A, 0x70);
-    outb(0x20,0x71);
+    // outb(0x20,0x71);
     sti();
 
     cli();
@@ -24,15 +24,12 @@ void rtc_init()
 }
 void rtc_handler()
 {
-    printf("in rtc handler");
     cli();
-    outb(0x0C, 0x70);	// select register C
+    outb(0x8C, 0x70);	// select register C
     inb(0x71);		// just throw away contents
     rtc_int = 1;
     sti();
-    printf("right before print test_interrupts11\n");
-    test_interrupts();
-    printf("right after print test_interrupts\n");
+    // test_interrupts();
 
     send_eoi(0x08); // end of instruction for the irq_8. 
 }

@@ -29,6 +29,7 @@ void i8259_init(void) {
 
     outb(master_mask, MASTER_8259_DATA); // restore masks
     outb(slave_mask, SLAVE_8259_DATA);
+    enable_irq(0x02); // need to enable irq_2 for the RTC int
 }
 
 /* Enable (unmask) the specified IRQ */
