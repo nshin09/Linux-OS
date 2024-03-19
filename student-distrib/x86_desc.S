@@ -12,8 +12,21 @@
 .globl gdt_ptr
 .globl idt_desc_ptr, idt
 .globl gdt_desc_ptr
+.globl page_table,page_directory
 
 .align 4
+
+.align 4096
+page_table:
+    .rept 1024
+    .long 0
+    .endr
+
+.align 4096
+page_directory:
+    .rept 1024
+    .long 0
+    .endr
 
 
 tss_size:

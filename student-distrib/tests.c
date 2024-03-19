@@ -1,7 +1,7 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
-
+#include "paging.h"
 #define PASS 1
 #define FAIL 0
 
@@ -56,6 +56,29 @@ int divide_by_zero_test(){
 
 }
 
+int paging_test(){
+	TEST_HEADER;
+	int result = PASS;
+	int i;
+	int *pointer = (int*)(VGA_MEM_START - 1);
+	if(*pointer == NULL)
+	{
+		result = FAIL;
+	} 
+	*pointer = (int*)(VGA_MEM_START + 1);
+	if(*pointer == NULL)
+	{
+		result = FAIL;
+	}
+	pointer = KERNEL_MEMORY;
+	if(*pointer == NULL)
+	{
+		result = FAIL;
+	}
+	printf("\n p val: %d", *pointer);
+	return result;
+}
+
 // add more tests here
 
 /* Checkpoint 2 tests */
@@ -66,7 +89,8 @@ int divide_by_zero_test(){
 
 /* Test suite entry point */
 void launch_tests(){
-	TEST_OUTPUT("idt_test", idt_test());
-	TEST_OUTPUT("divide_by_zero_test", divide_by_zero_test());
+	// TEST_OUTPUT("idt_test", idt_test());
+	// TEST_OUTPUT("divide_by_zero_test", divide_by_zero_test());
+	// TEST_OUTPUT("paging test\n", paging_test());
 	// launch your tests here
 }

@@ -1,3 +1,4 @@
+#define ASM 1
 
 .text
 .globl set_PDBR
@@ -9,8 +10,9 @@ set_PDBR:
     movl 8(%esp), %eax
     movl %eax, %cr3
     ; #teardown and return
-    movl %ebp, %esp
-    popl %ebp
+    ;# movl %ebp, %esp
+    ;# popl %ebp
+    leave
     ret
 
 
@@ -19,12 +21,23 @@ enable_paging:
     ; #Setup
     pushl %ebp
     movl %esp, %ebp
+
+
+
     ; #Set bit 31 of eax to enable paging
+    movl %cr4, %eax
+    orl $0x00000010, %eax
+    movl %eax, %cr4
+
     movl %cr0, %eax
-    orl $0x8000000, %eax
+    orl $0x80000000, %eax
     movl %eax, %cr0
+
+  
+
     ; #teardown and return
-    movl %ebp, %esp
-    popl %ebp
+    ;# movl %ebp, %esp
+    ; #popl %ebp
+    leave
     ret
 
