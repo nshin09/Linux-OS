@@ -2,6 +2,7 @@
 #include "x86_desc.h"
 #include "lib.h"
 #include "paging.h"
+#include "idt_asm.h"
 #define PASS 1
 #define FAIL 0
 
@@ -56,27 +57,54 @@ int divide_by_zero_test(){
 
 }
 
+
 int paging_test(){
 	TEST_HEADER;
 	int result = PASS;
-	int i;
-	int *pointer = (int*)(VGA_MEM_START - 1);
+	int *pointer = (int*)(VGA_MEM_START); 
 	if(*pointer == NULL)
 	{
-		result = FAIL;
-	} 
-	*pointer = (int*)(VGA_MEM_START + 1);
-	if(*pointer == NULL)
-	{
+		printf("\nvga_mem\n");
 		result = FAIL;
 	}
-	pointer = KERNEL_MEMORY;
-	if(*pointer == NULL)
+	pointer = (int*)(KERNEL_MEMORY);
+	if((*pointer == NULL))
 	{
+		printf("kern_mem\n");
 		result = FAIL;
 	}
-	printf("\n p val: %d", *pointer);
+	printf(" p val: %d\n", *pointer);
 	return result;
+}
+
+int page_fault_test()
+{
+	TEST_HEADER;
+	int *pointer = (int*)(0x80000001);
+	if(!(*pointer == NULL))
+	{
+		printf("out of range\n");
+	}
+	return FAIL; // should never get here
+}
+
+
+int test_debug_error(){
+	do {                                    \
+		asm volatile ("call Debug"          \
+		);                                  \
+	} while (0);
+
+	return FAIL;
+}
+
+int bound_range_exception(){
+	do {                                    \
+		asm volatile ("call Bound_Range_Exceeded"          \
+		);                                  \
+	} while (0);
+
+	return FAIL;
 }
 
 // add more tests here
@@ -91,6 +119,11 @@ int paging_test(){
 void launch_tests(){
 	// TEST_OUTPUT("idt_test", idt_test());
 	// TEST_OUTPUT("divide_by_zero_test", divide_by_zero_test());
-	// TEST_OUTPUT("paging test\n", paging_test());
+	// TEST_OUTPUT("paging test", paging_test());
+	// TEST_OUTPUT("paging range test", page_fault_test());
+	// TEST_OUTPUT("debug exception test", test_debug_error());
+	TEST_OUTPUT("bounds exception test", bound_range_exception());
+
+
 	// launch your tests here
 }

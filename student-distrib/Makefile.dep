@@ -14,4 +14,4 @@ keyboard.o: keyboard.c lib.h types.h i8259.h
 lib.o: lib.c lib.h types.h
 paging.o: paging.c paging.h types.h paging_asm.h lib.h x86_desc.h
 rtc.o: rtc.c rtc.h types.h i8259.h lib.h
-tests.o: tests.c tests.h x86_desc.h types.h lib.h paging.h
+tests.o: tests.c tests.h x86_desc.h types.h lib.h paging.h idt_asm.h

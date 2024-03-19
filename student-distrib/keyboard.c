@@ -74,7 +74,7 @@ char findChar(int c){
         case 0x34: return '.';
         case 0x35: return '/';
     }
-    return '*';
+    return ' ';
 }
 
 /* void keyboard_handler();
@@ -89,9 +89,12 @@ void keyboard_handler(){
     int Scancode = inb(0x60);
     sti();
 
-    printf("Scancode:%d \n", Scancode);
+    // printf("Scancode:%d \n", Scancode);
     char key = findChar(Scancode);
     // putc(key);
+    if (key == 'l'){
+        test_interrupts();
+    }
     printf("Key:  %c  \n", key);
     /*if(Scancode > strlen(Scancodes) || Scancode < 0){
         return;
