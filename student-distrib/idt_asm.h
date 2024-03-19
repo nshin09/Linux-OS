@@ -1,6 +1,9 @@
 #ifndef IDT_ASM_H
 #define IDT_ASM_H
 
+/* Functions called by the idt table. These functions save all flags and registers
+ * before calling a handler function and then resetting all flags and registers.
+ */
 void general_handler();
 void Division_Error();
 void Debug();

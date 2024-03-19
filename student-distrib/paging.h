@@ -2,7 +2,7 @@
 #ifndef _PAGING_H_
 #define _PAGING_H_
 
-typedef struct __attribute__ ((packed)) page_table {
+typedef struct __attribute__ ((packed)) page_table_t {
         uint32_t addr               : 20;
         uint8_t available           : 3;
         uint32_t global_page        : 1;
@@ -52,7 +52,8 @@ typedef union page {
 
 } page_t;
 
-extern uint32_t directory[1024] __attribute__((aligned(4096)));
+//The page directory. Set up in paging.c
+extern page_table_t page_directory[1024] __attribute__((aligned(4096)));
 
 extern void initPaging();
 

@@ -3,6 +3,9 @@
 
 #include "rtc.h"
 
+//Handler for rtc interrupts
 void RTC_HANDLER();
+//Handler for keyboard interrupts
 void KEYBOARD_HANDLER();
+
 #endif

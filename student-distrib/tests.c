@@ -50,6 +50,7 @@ int divide_by_zero_test(){
 	int a = 21;
 	int b = 0;
 	int division = a/b;
+	division++; // Gets rid of 'unused variable' warning
 	int result = FAIL;
 	return result;
 

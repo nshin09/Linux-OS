@@ -12,6 +12,7 @@
 #include "idt_asm.h"
 #include "rtc.h"
 #include "keyboard.h"
+#include "paging.h"
 #define RUN_TESTS
 
 /* Macros. */
@@ -149,6 +150,7 @@ void entry(unsigned long magic, unsigned long addr) {
     
     initialize_keyboard();
     rtc_init();
+    initPaging();
     //When general_handler from idt_asm.S is called here, it causes a bootloop
     //on the iret command. Changing it to ret makes it not bootloop. Both ways
     //bootloop when interrupts are enabled below.

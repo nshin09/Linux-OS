@@ -3,6 +3,8 @@
 #include "lib.h"
 #include "idt_asm.h"
 #include "device_handlers.h"
+
+/* Commented out to avoid unused variable warning
 static char* exceptions[32] = 
 {
 "Division_Error", "Debug", "Non_maskable_Interrupt", "Breakpoint", "Overflow"
@@ -13,26 +15,24 @@ static char* exceptions[32] =
 "Control_Protection_Exception","Reserved","Reserved","Reserved",
 "Reserved","Reserved","Reserved", "Hypervisor_Injection_Exception","VMM_Communication_Exception", "Security_Exception","Reserved"
 };
-
-//* COMMENT OUT TO TEST BASIC INITIALIZATION
-
 //*/
 
-void idt_initializer(){
-    //printf("Initializing idt - ");
 
+/* void idt_initializer();
+ * Inputs: None
+ * Return Value: None
+ * Function: Initializes the values within the idt table
+ *           so that the first 20 interrupts, as well as
+ *           RTC and keyboard interrupts, can be used.
+ */
+void idt_initializer(){
     int i;
     for(i=0; i<20; i++){
-        //Only mark the exceptions we deal with as present
-        // if(i < 32){
-            
-        //     // SET_IDT_ENTRY(idt[i], general_handler);
-            
-        // }
+        //Set the values of all interrupts we deal with
 
-        //Load the other values of all idt entries
         if(i == 15)
         {
+            //Skip interrupt 15 as its reserved
             continue;
         }
         
@@ -74,7 +74,9 @@ void idt_initializer(){
         // SET_IDT_ENTRY(idt[28],  Hypervisor_Injection_Exception);
         // SET_IDT_ENTRY(idt[29],  VMM_Communication_Exception);
         // SET_IDT_ENTRY(idt[30],  Security_Exception);
-    //RTC Data    
+
+    // Set the RTC and keyboard interrupt values. These have
+    // different reserved bits because they're different interrupt types
     idt[0x28].present = 1;
     idt[0x28].reserved0 = 0;  
     idt[0x28].reserved1 = 1;

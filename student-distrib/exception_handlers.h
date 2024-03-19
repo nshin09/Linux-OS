@@ -2,6 +2,7 @@
 #ifndef EXCEPTION_HANDLERS_H
 #define EXCEPTION_HANDLERS_H
 
+// Interrupt handlers. Each handler deals with it's corresponding interrupt
 extern void div_error_handler();
 
 extern void debug_handler();

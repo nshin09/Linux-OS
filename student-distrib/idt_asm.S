@@ -5,7 +5,9 @@
 .globl Machine_Check, SIMD_Floating_Point_Exception
 ; .globl Control_Protection_Exception, Hypervisor_Injection_Exception,VMM_Communication_Exception, Security_Exception
  
- 
+; /*
+;  *These first functions save all flags and refisters and then jump to handlers lower in this file.
+;  s*/
 .align 4
 Division_Error: 
     pushl $0 
@@ -139,8 +141,9 @@ SIMD_Floating_Point_Exception:
     pushfl 
     jmp SIMD_Floating_Point_Handler
 
-
-/*Make handlers for each exception*/
+; /*
+;  * These handlers each call different c functions and then restore all flags and registers.
+;  */
 Division_Error_Handler:
     call div_error_handler /* Change this to print exception once we get exception to work. */
     popfl
@@ -148,8 +151,6 @@ Division_Error_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Debug_Handler:
     call debug_handler /* Change this to print exception once we get exception to work. */
@@ -158,8 +159,6 @@ Debug_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 NMI_Handler:
     ; pushal
@@ -170,8 +169,6 @@ NMI_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Breakpoint_Handler:
     call breakpoint_handler /* Change this to print exception once we get exception to work. */
@@ -180,8 +177,6 @@ Breakpoint_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 
 Overflow_Handler:
@@ -191,8 +186,6 @@ Overflow_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Bounds_Handler:
     call bounds_handler /* Change this to print exception once we get exception to work. */
@@ -201,8 +194,6 @@ Bounds_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Invalid_Opcode_Handler:
     call invalid_opcode_handler /* Change this to print exception once we get exception to work. */
@@ -211,8 +202,6 @@ Invalid_Opcode_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Device_Not_Available_Handler:
     call dna_handler /* Change this to print exception once we get exception to work. */
@@ -221,8 +210,6 @@ Device_Not_Available_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Double_Fault_Handler:
     call double_fault_handler /* Change this to print exception once we get exception to work. */
@@ -231,8 +218,6 @@ Double_Fault_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Coprocessor_Segment_Overrun_Handler:
     call cpo_handler /* Change this to print exception once we get exception to work. */
@@ -241,8 +226,6 @@ Coprocessor_Segment_Overrun_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Invalid_TSS_Handler:
     call invalid_tss_handler /* Change this to print exception once we get exception to work. */
@@ -251,8 +234,6 @@ Invalid_TSS_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Segment_Not_Present_Handler:
     call no_segment_handler /* Change this to print exception once we get exception to work. */
@@ -261,8 +242,6 @@ Segment_Not_Present_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Stack_Segment_Fault_Handler:
     call stack_segfault_handler /* Change this to print exception once we get exception to work. */
@@ -271,8 +250,6 @@ Stack_Segment_Fault_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 General_Protection_Fault_Handler:
     ; pushal
@@ -283,8 +260,6 @@ General_Protection_Fault_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Page_Fault_Handler:
     call page_fault_handler /* Change this to print exception once we get exception to work. */
@@ -293,8 +268,6 @@ Page_Fault_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Floating_Point_Handler:
     call floating_point_handler /* Change this to print exception once we get exception to work. */
@@ -303,8 +276,6 @@ Floating_Point_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Alignment_Check_Handler:
     call alignment_check_handler /* Change this to print exception once we get exception to work. */
@@ -313,8 +284,6 @@ Alignment_Check_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 Machine_Check_Handler:
     call machine_check_handler /* Change this to print exception once we get exception to work. */
@@ -323,8 +292,6 @@ Machine_Check_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
 
 SIMD_Floating_Point_Handler:
     call simd_floating_point_handler /* Change this to print exception once we get exception to work. */
@@ -333,5 +300,3 @@ SIMD_Floating_Point_Handler:
     add $4, %esp 
    
     iret     
-    # Making this RET instead of IRET lets this function be called from 
-    # kernel.c (~line 153). Enabling interrupts still bootloops with that.
