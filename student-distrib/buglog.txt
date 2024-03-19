@@ -1,0 +1,34 @@
+Checkpoint 1:
+
+IDT getting “no such instruction: extern void idt_initializer()” error
+    Solution: Including the idt.h file where that function existed in the Boot.S file (before the program had booted) meant that things
+    loaded out of order and Boot.S checked if the function existed before idt.c had actually created the function. Initializing idt in
+    kernel.c and removing “include idt.h” from Boot.S solved this issue.
+
+
+Program boot loops whenever interrupts are enabled and we run our divide by zero test.
+	Solution: The interrupt table had been set up incorrectly. Our Reserved values hadn’t been set correctly so the interrupts weren’t 
+    being interpreted as interrupts.
+
+
+Exception print function is printing the wrong code for the divide by zero error
+    Solution: When we do “pushl $0” it’s not actually pushing zero, so the print exception function is instead taking the saved flags 
+    value as the error. To solve this we made individual functions to handle each interrupt/exception instead of having 1 general 
+    interrupt handler that takes the interrupt code as an argument.
+
+
+Program accepts one keyboard interrupt but then freezes, not accepting any more keyboard inputs
+	Solution: We had also started work on the RTC. Our RTC code didn’t have the registers set up correctly, so when we set those up 
+    that solved the Keyboard interrupt issue. Additionally, we hadn’t been sending out an EOI signal to the pic at first.
+
+
+RTC Interrupts don’t occur
+	Solution: We hadn’t set up all of the registers properly. Registers A and B had been set up but we had read some incorrect 
+    documentation and incorrectly determined we didn’t need to set up register C. Getting register C set up correctly allowed RTC 
+    interrupts to occur.
+
+
+Checkpoint 2:
+Checkpoint 3:
+Checkpoint 4:
+Checkpoint 5:
