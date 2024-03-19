@@ -5,5 +5,5 @@
 extern void initialize_keyboard();
 
 extern void keyboard_handler();
-
+char findChar(int c);
 #endif
