@@ -32,7 +32,6 @@ static inline void assertion_failure(){
 int idt_test(){
 	TEST_HEADER;
 
-	 printf("inside idt test\n");
 	int i;
 	int result = PASS;
 	for (i = 0; i < 10; ++i){
@@ -47,7 +46,6 @@ int idt_test(){
 }
 
 int divide_by_zero_test(){
-	printf("inside divide by zero test\n");
 	TEST_HEADER;
 	int a = 21;
 	int b = 0;

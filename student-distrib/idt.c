@@ -15,20 +15,7 @@ static char* exceptions[32] =
 };
 
 //* COMMENT OUT TO TEST BASIC INITIALIZATION
-void print_interrupt(){ 
-    printf("Received an Interrupt    ");
-    while(1);
 
-}
-
-void print_exception(uint32_t id){ //changed this from print_interrupt to just print out the exceptions. 
-    printf("\nInterrupt id # : %d \n ", id);
-    printf("Exception Name : ");
-    printf("%s",exceptions[0]);
-    while(1);
-    // need to stop program? 
-
-}
 //*/
 
 void idt_initializer(){
@@ -61,7 +48,6 @@ void idt_initializer(){
 
 
     }
-    printf("calling division error\n");
         // comment these back in once we get exception to work. 
         SET_IDT_ENTRY(idt[0], Division_Error);
 
@@ -89,6 +75,18 @@ void idt_initializer(){
         // SET_IDT_ENTRY(idt[29],  VMM_Communication_Exception);
         // SET_IDT_ENTRY(idt[30],  Security_Exception);
     //RTC Data    
+    idt[0x28].present = 1;
+    idt[0x28].reserved0 = 0;  
+    idt[0x28].reserved1 = 1;
+    idt[0x28].reserved2 = 1;
+    idt[0x28].reserved3 = 0;
+    idt[0x28].reserved4 = 0;
+    idt[0x28].size = 1;
+    idt[0x28].seg_selector = KERNEL_CS;
+    idt[0x28].dpl = 0; // 0x28 represents the RTC port described in the IDT 
+    printf("before setting idt entry \n");
+    SET_IDT_ENTRY(idt[0x28], RTC_HANDLER);
+    
     idt[0x21].present = 1;
     idt[0x21].reserved0 = 0; 
     idt[0x21].reserved1 = 1;
@@ -100,16 +98,6 @@ void idt_initializer(){
     idt[0x21].dpl = 0;
     SET_IDT_ENTRY(idt[0x21], KEYBOARD_HANDLER);
 
-    idt[0x28].present = 1;
-    idt[0x28].reserved0 = 0;  
-    idt[0x28].reserved1 = 1;
-    idt[0x28].reserved2 = 1;
-    idt[0x28].reserved3 = 0;
-    idt[0x28].reserved4 = 0;
-    idt[0x28].size = 1;
-    idt[0x28].seg_selector = KERNEL_CS;
-    idt[0x28].dpl = 0; // 0x28 represents the RTC port described in the IDT 
-    SET_IDT_ENTRY(idt[0x28], RTC_HANDLER);
-    //printf("Idt is initialized \n");
+
 }
 

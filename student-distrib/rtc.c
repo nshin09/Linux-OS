@@ -19,17 +19,21 @@ void rtc_init()
     outb(prev | 0x40, 0x71);	// write the previous value ORed with 0x40. This turns on bit 6 of register B
     sti();
     enable_irq(0x08); // this command enables the irq_8 that was just initialized
-    rtc_change_rate(DEFAULT_FREQUENCY);
+    // rtc_change_rate(DEFAULT_FREQUENCY);
 
 }
 void rtc_handler()
 {
+    printf("in rtc handler");
     cli();
     outb(0x0C, 0x70);	// select register C
     inb(0x71);		// just throw away contents
     rtc_int = 1;
     sti();
-    
+    printf("right before print test_interrupts11\n");
+    test_interrupts();
+    printf("right after print test_interrupts\n");
+
     send_eoi(0x08); // end of instruction for the irq_8. 
 }
 
