@@ -174,7 +174,7 @@ int32_t puts(int8_t* s) {
  * Return Value: void
  *  Function: Output a character to the console */
 void putc(uint8_t c) {
-    if(c == '\n' || c == '\r') {
+    if(c == '\n' || c == '\r' || screen_x >= 79) {
         screen_y++;
         screen_x = 0;
     } else {
@@ -184,6 +184,7 @@ void putc(uint8_t c) {
         screen_x %= NUM_COLS;
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
+    update_cursor(screen_x,screen_y);
 }
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
@@ -479,4 +480,17 @@ void test_interrupts(void) {
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
         video_mem[i << 1]++;
     }
+}
+
+void reset_scrn_xy(){
+    screen_x = 0;
+    screen_y = 0;
+}
+void update_cursor(int x, int y)
+{
+    int32_t pos = screen_y * NUM_COLS + screen_x;
+    outb(0x0F, 0x3D4);
+	outb((uint8_t) (pos & 0xFF),0x3D5 );
+	outb( 0x0E, 0x3D4);
+	outb((uint8_t) ((pos >> 8) & 0xFF),0x3D5);
 }

@@ -35,6 +35,7 @@ int32_t terminal_write(int32_t fd, const char* buf, int32_t nbytes)
         // printf("%c", ((char*)buf)[i]);
 
     }
+    putc('\n');
 
     //  while(i < nbytes && ((char*)buf)[i] != '\n')
     //  {

@@ -9,18 +9,19 @@ extern void initialize_keyboard();
 extern void keyboard_handler();
 
 //checks for if flags should be set
-extern void check_flags();
+extern void check_flags(int Scancode);
 //flags
 int caps_lock;
 int shift;
-int ctr;
+int ctrl;
 int alt;
 
 //Converts a scancode to a character
 char findChar(int c);
-
- char keyboard_buffer[128]; 
- char buf[128];
- int32_t keyboard_buffer_index;
+char findShiftedChar(int c);
+char findCapsChar(int c);
+char keyboard_buffer[128]; 
+char buf[128];
+int32_t keyboard_buffer_index;
 
 #endif

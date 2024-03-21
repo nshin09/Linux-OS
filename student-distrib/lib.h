@@ -6,10 +6,12 @@
 #define _LIB_H
 
 #include "types.h"
-
+// user made value to reset screen pointer values
+extern void reset_scrn_xy();
 //gets screen x val
 extern void decr_scrn_x();
-
+//updates the cursor 
+extern void update_cursor(int x, int y);
 //added test interrupts
 void test_interrupts(void);
 
