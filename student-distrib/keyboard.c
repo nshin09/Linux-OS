@@ -1,6 +1,7 @@
 #include "lib.h"
 #include "i8259.h"
-
+#include "keyboard.h"
+#include "terminal.h"
 /*
 static char Scancodes[] = {' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', ' ', ' ', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']',
                     ' ', ' ', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', '`', ' ', '\\', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'};
@@ -14,6 +15,7 @@ static char Scancodes[] = {' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
  */
 void initialize_keyboard(){
     enable_irq(1);
+    keyboard_buffer_index = 0;
 }
 
 /* char findChar(int c);
@@ -73,6 +75,7 @@ char findChar(int c){
         case 0x33: return ',';
         case 0x34: return '.';
         case 0x35: return '/';
+        case 0x39: return ' ';
     }
     return ' ';
 }
@@ -89,13 +92,75 @@ void keyboard_handler(){
     int Scancode = inb(0x60);
     sti();
 
-    // printf("Scancode:%d \n", Scancode);
-    char key = findChar(Scancode);
-    // putc(key);
-    if (key == 'l'){
-        test_interrupts();
+    
+    if(Scancode == 0x1C) // 1C is the "Enter " scancode
+    {
+        if(keyboard_buffer_index >= 128)
+        {
+            keyboard_buffer[127] = '\n'; // 127 is the last index of buffer 
+            keyboard_buffer_index = 127;
+        }
+        else
+        {
+             keyboard_buffer[keyboard_buffer_index] = '\n';
+        }
+        keyboard_buffer_index++;
     }
-    printf("Key:  %c  \n", key);
+    else if(Scancode == 0x66) //0x66 is the "backspace" scancode
+    {
+        if(keyboard_buffer_index > 0)
+        {
+            keyboard_buffer_index--;
+        }
+    }
+    else
+    {
+        
+        if(keyboard_buffer_index < 128 && Scancode < 0x81)
+        {
+
+            char key = findChar(Scancode);
+            keyboard_buffer[keyboard_buffer_index] = key;
+            keyboard_buffer_index++;
+
+            //Test read/write
+            if(key == ';'){
+                //terminal_test();
+                int i;
+                int old_keyboard_index = keyboard_buffer_index;
+                /*for(i =0; i < keyboard_buffer_index; i++){
+                    printf("%c", keyboard_buffer[i]);
+                }
+                printf("\n");*/
+
+                //create buf and fill it
+                char buf[128];
+                for(i =0; i < 128; i++){
+                    buf[i] = '*';
+                }
+	
+                int nbytes = terminal_read(0, buf, 128);
+                printf("%d \n", old_keyboard_index);
+                
+                for(i =0; i < old_keyboard_index; i++){
+                    if(buf[i] == '\n') { break; }
+                    printf("%c", buf[i]);
+                }
+                printf("\n");
+                //nbytes = terminal_write(0, buf, 128);
+
+            }
+        }
+        
+    }
+
+    // printf("Scancode:%d \n", Scancode);
+    
+    // putc(key);
+    // if (key == 'l'){
+    //     test_interrupts();
+    // }
+    // printf("Key:  %c  \n", key);
     /*if(Scancode > strlen(Scancodes) || Scancode < 0){
         return;
     }*/

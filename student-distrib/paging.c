@@ -97,7 +97,7 @@
     printf("  Enabling paging-");
     // ENABLE PAGING
     // Set CR3 to the base register
-    set_PDBR((unsigned int)page_directory);
+    set_PDBR((unsigned int*)page_directory);
     // Enable paging in CR0
     enable_paging();
 

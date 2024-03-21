@@ -3,6 +3,8 @@
 #include "lib.h"
 #include "paging.h"
 #include "idt_asm.h"
+#include "terminal.h"
+#include "keyboard.h"
 #define PASS 1
 #define FAIL 0
 
@@ -129,6 +131,17 @@ int bound_range_exception(){
 // add more tests here
 
 /* Checkpoint 2 tests */
+int terminal_test()
+{
+	TEST_HEADER;
+	// int i;
+	char buf[128];
+	
+	int nbytes = terminal_read(0, buf, 128);
+	nbytes = terminal_write(0, buf, 128);
+
+	return PASS;
+}
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -141,7 +154,8 @@ void launch_tests(){
 	// TEST_OUTPUT("paging test", paging_test());
 	// TEST_OUTPUT("paging range test", page_fault_test());
 	// TEST_OUTPUT("debug exception test", test_debug_error());
-	TEST_OUTPUT("bounds exception test", bound_range_exception());
+	// TEST_OUTPUT("bounds exception test", bound_range_exception());
+	// TEST_OUTPUT("terminal test", terminal_test());
 
 
 	// launch your tests here
