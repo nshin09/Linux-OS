@@ -21,11 +21,11 @@ int32_t terminal_read(int32_t fd, char* buf, int32_t nbytes){
 
         i++;
     }
-    keyboard_buffer_index = 0;
+    // keyboard_buffer_index = 0;
     return nbytes;
 }
 
-int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes)
+int32_t terminal_write(int32_t fd, const char* buf, int32_t nbytes)
 {
     int i;
 

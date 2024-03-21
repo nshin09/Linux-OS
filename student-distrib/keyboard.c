@@ -2,6 +2,7 @@
 #include "i8259.h"
 #include "keyboard.h"
 #include "terminal.h"
+
 /*
 static char Scancodes[] = {' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', ' ', ' ', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']',
                     ' ', ' ', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', '`', ' ', '\\', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'};
@@ -16,6 +17,10 @@ static char Scancodes[] = {' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
 void initialize_keyboard(){
     enable_irq(1);
     keyboard_buffer_index = 0;
+    caps_lock = 0;
+    shift = 0;
+    ctr = 0;
+    alt = 0;
 }
 
 /* char findChar(int c);
@@ -103,10 +108,14 @@ void keyboard_handler(){
         else
         {
              keyboard_buffer[keyboard_buffer_index] = '\n';
+             
         }
-        keyboard_buffer_index++;
+        // keyboard_buffer_index++;
         //terminal_test();
         putc('\n');
+        terminal_read(0, buf, keyboard_buffer_index);
+        terminal_write(0, buf, keyboard_buffer_index);
+        keyboard_buffer_index = 0;
 
     }
     else if(Scancode == 0x0E) //0x0E is the "backspace" scancode
@@ -147,44 +156,11 @@ void keyboard_handler(){
         
     }
     
-    //terminal_write(0, keyboard_buffer, keyboard_buffer_index);
-
-    // printf("Scancode:%d \n", Scancode);
-    
-    // putc(key);
-    // if (key == 'l'){
-    //     test_interrupts();
-    // }
-    // printf("Key:  %c  \n", key);
-    /*if(Scancode > strlen(Scancodes) || Scancode < 0){
-        return;
-    }*/
-
-    // int i;
-    // int old_keyboard_index = keyboard_buffer_index;
-    // /*for(i =0; i < keyboard_buffer_index; i++){
-    //     printf("%c", keyboard_buffer[i]);
-    // }
-    // printf("\n");*/
-
-    // //create buf and fill it
-    // char buf[128];
-    // for(i =0; i < 128; i++){
-    //     buf[i] = '\0';
-    // }
-
-    // int nbytes = terminal_read(0, buf, 128);
-    // nbytes++;
-    // // printf("%d \n", old_keyboard_index);
-    
-    // // for(i =0; i < old_keyboard_index; i++){
-    // //     printf("%c", buf[i]);
-    // // }
-    // // printf("\n");
-    // nbytes = terminal_write(0, buf, old_keyboard_index);
+  
 
 
 
     send_eoi(0x01); // need to send eoi to irq_1
     
 }
+
