@@ -24,6 +24,12 @@ void clear(void) {
     }
 }
 
+void decr_scrn_x(){
+    if(screen_x > 0)
+    {
+        screen_x--;
+    }
+}
 /* Standard printf().
  * Only supports the following format strings:
  * %%  - print a literal '%' character

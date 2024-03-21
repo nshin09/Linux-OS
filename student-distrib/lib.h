@@ -6,6 +6,10 @@
 #define _LIB_H
 
 #include "types.h"
+
+//gets screen x val
+extern void decr_scrn_x();
+
 //added test interrupts
 void test_interrupts(void);
 

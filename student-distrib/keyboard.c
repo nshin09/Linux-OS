@@ -105,14 +105,33 @@ void keyboard_handler(){
              keyboard_buffer[keyboard_buffer_index] = '\n';
         }
         keyboard_buffer_index++;
+        //terminal_test();
+        putc('\n');
+
     }
-    else if(Scancode == 0x66) //0x66 is the "backspace" scancode
+    else if(Scancode == 0x0E) //0x0E is the "backspace" scancode
     {
         if(keyboard_buffer_index > 0)
         {
             keyboard_buffer_index--;
         }
-    }
+        decr_scrn_x();
+        putc(' ');
+        decr_scrn_x();
+        //create buf and fill it
+        // char empty_buf[128];
+        // int i;
+        // for(i =0; i < 128; i++){
+        //     putc('\0');
+        // }
+        // for(i=0;i<keyboard_buffer_index;i++){
+        //     putc(keyboard_buffer[i]);
+        // }
+    
+
+        // terminal_write(0, empty_buf, keyboard_buffer_index+1);
+        // terminal_write(0, keyboard_buffer, keyboard_buffer_index);
+    }   
     else
     {
         
@@ -123,36 +142,12 @@ void keyboard_handler(){
             keyboard_buffer[keyboard_buffer_index] = key;
             keyboard_buffer_index++;
 
-            //Test read/write
-            if(key == ';'){
-                //terminal_test();
-                int i;
-                int old_keyboard_index = keyboard_buffer_index;
-                /*for(i =0; i < keyboard_buffer_index; i++){
-                    printf("%c", keyboard_buffer[i]);
-                }
-                printf("\n");*/
-
-                //create buf and fill it
-                char buf[128];
-                for(i =0; i < 128; i++){
-                    buf[i] = '*';
-                }
-	
-                int nbytes = terminal_read(0, buf, 128);
-                printf("%d \n", old_keyboard_index);
-                
-                for(i =0; i < old_keyboard_index; i++){
-                    if(buf[i] == '\n') { break; }
-                    printf("%c", buf[i]);
-                }
-                printf("\n");
-                //nbytes = terminal_write(0, buf, 128);
-
-            }
+            putc(key);
         }
         
     }
+    
+    //terminal_write(0, keyboard_buffer, keyboard_buffer_index);
 
     // printf("Scancode:%d \n", Scancode);
     
@@ -164,6 +159,31 @@ void keyboard_handler(){
     /*if(Scancode > strlen(Scancodes) || Scancode < 0){
         return;
     }*/
+
+    // int i;
+    // int old_keyboard_index = keyboard_buffer_index;
+    // /*for(i =0; i < keyboard_buffer_index; i++){
+    //     printf("%c", keyboard_buffer[i]);
+    // }
+    // printf("\n");*/
+
+    // //create buf and fill it
+    // char buf[128];
+    // for(i =0; i < 128; i++){
+    //     buf[i] = '\0';
+    // }
+
+    // int nbytes = terminal_read(0, buf, 128);
+    // nbytes++;
+    // // printf("%d \n", old_keyboard_index);
+    
+    // // for(i =0; i < old_keyboard_index; i++){
+    // //     printf("%c", buf[i]);
+    // // }
+    // // printf("\n");
+    // nbytes = terminal_write(0, buf, old_keyboard_index);
+
+
 
     send_eoi(0x01); // need to send eoi to irq_1
     

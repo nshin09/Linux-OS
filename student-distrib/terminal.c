@@ -27,12 +27,20 @@ int32_t terminal_read(int32_t fd, char* buf, int32_t nbytes){
 
 int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes)
 {
-     int i;
-     while(i < nbytes && ((char*)buf)[i] != '\n')
-     {
-        putc(((char*)buf)[i]);
-        i++;
-     }
+    int i;
+
+
+    for(i =0; i < nbytes; i++){
+        putc(((char*)buf)[i]); 
+        // printf("%c", ((char*)buf)[i]);
+
+    }
+
+    //  while(i < nbytes && ((char*)buf)[i] != '\n')
+    //  {
+    //     putc(((char*)buf)[i]);
+    //     i++;
+    //  }
      return nbytes;
 }
 
