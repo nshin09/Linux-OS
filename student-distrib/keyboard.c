@@ -258,7 +258,11 @@ void keyboard_handler(){
         if(keyboard_buffer_index < 128 && Scancode < 0x81)
         {
             char key;
-            if(shift == 1)
+            if(caps_lock == 1 && shift == 1){
+                key = findChar(Scancode);
+            }
+
+            else if(shift == 1)
             {
                 key = findShiftedChar(Scancode);
             }
