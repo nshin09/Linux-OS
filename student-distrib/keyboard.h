@@ -9,7 +9,7 @@ extern void initialize_keyboard();
 extern void keyboard_handler();
 
 //checks for if flags should be set
-extern void check_flags(int Scancode);
+extern int check_flags(int Scancode);
 //flags
 int caps_lock;
 int shift;

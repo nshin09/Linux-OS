@@ -206,15 +206,20 @@ void keyboard_handler(){
     cli();
     int Scancode = inb(0x60);
     sti();
-    check_flags(Scancode);
+
+    int SetFlag = 0;
+    SetFlag = check_flags(Scancode);
+
     if(ctrl == 1 && Scancode == 0x26) // 0x26 is L 
     {
         clear();
         reset_scrn_xy();
         memset(keyboard_buffer, '\0', sizeof(keyboard_buffer));
+        send_eoi(0x01); // need to send eoi to irq_1
         return;
 
     }
+
     if(Scancode == 0x1C) // 1C is the "Enter " scancode
     {
         if(keyboard_buffer_index >= 128)
@@ -230,6 +235,7 @@ void keyboard_handler(){
         // keyboard_buffer_index++;
         //terminal_test();
         putc('\n');
+        //Prints the Keyboard buffer on enter pressed
         terminal_read(0, buf, keyboard_buffer_index);
         terminal_write(0, buf, keyboard_buffer_index);
         keyboard_buffer_index = 0;
@@ -265,10 +271,14 @@ void keyboard_handler(){
                 key = findChar(Scancode);
             }
              
-            keyboard_buffer[keyboard_buffer_index] = key;
-            keyboard_buffer_index++;
+            //Print all keys that don't affect flags
+            if(SetFlag != 1){
+                keyboard_buffer[keyboard_buffer_index] = key;
+                keyboard_buffer_index++;
 
-            putc(key);
+            
+                putc(key);
+            }
         }
         
     }
@@ -276,29 +286,30 @@ void keyboard_handler(){
     
 }
 
-void check_flags(int Scancode)
+int check_flags(int Scancode)
 {
  switch(Scancode) {
         case 0x3A: caps_lock = !caps_lock; 
-        return;
+        return 1;
         case 0x2A: shift = 1;
-        return; // left shift
+        return 1; // left shift
         case 0x36: shift = 1; 
-        return;// right shift
+        return 1;// right shift
         case 0xE0: alt = 1;
-        return; // right alt
+        return 1; // right alt
         case 0x38: alt = 1;
-        return; // left alt
+        return 1; // left alt
         case 0x1D: ctrl = 1; 
-        return;
+        return 1;
         case 0xAA: shift = 0; 
-        return;// left shift release
+        return 1;// left shift release
         case 0xB6: shift = 0; 
-        return;// right shift release
+        return 1;// right shift release
         case 0xB8: alt = 0;
-        return;
+        return 1;
         case 0x9D: ctrl = 0;
-        return; // control release
-        default:;
+        return 1; // control release
+        default:
+            return 0;
  }
 }
