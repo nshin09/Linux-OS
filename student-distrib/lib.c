@@ -6,11 +6,40 @@
 #define VIDEO       0xB8000
 #define NUM_COLS    80
 #define NUM_ROWS    25
+// #define NUM_COLS    2
+// #define NUM_ROWS    3
 #define ATTRIB      0x7
 
 static int screen_x;
 static int screen_y;
 static char* video_mem = (char *)VIDEO;
+int endOfScreenEnter = 0;
+
+/*User defined functions*/
+void decr_scrn_x(){
+    if(screen_x > 0)
+    {
+        screen_x--;
+    }
+    update_cursor(screen_x,screen_y);
+}
+
+int getScreenX(){
+    return screen_x;
+}
+
+int getScreenY(){
+    return screen_y;
+
+} 
+void move_line_up(){
+    if(screen_y > 0){
+        screen_x = NUM_COLS-1;
+        screen_y = screen_y-1;
+    }
+    update_cursor(screen_x,screen_y);
+}
+/*=======================*/
 
 /* void clear(void);
  * Inputs: void
@@ -22,14 +51,11 @@ void clear(void) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
+    screen_x = 0;
+    screen_y = 0;
+    update_cursor(screen_x,screen_y);
 }
 
-void decr_scrn_x(){
-    if(screen_x > 0)
-    {
-        screen_x--;
-    }
-}
 /* Standard printf().
  * Only supports the following format strings:
  * %%  - print a literal '%' character
@@ -174,14 +200,57 @@ int32_t puts(int8_t* s) {
  * Return Value: void
  *  Function: Output a character to the console */
 void putc(uint8_t c) {
-    if(c == '\n' || c == '\r' || screen_x >= 79) {
+    if(c == '\n' || c == '\r') {
         screen_y++;
         screen_x = 0;
+        textOverflow = 0;
+
     } else {
+        //make scrolling by looping thru vid mem and printing row below curr ie. 0th row <- 1st row
+
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
-        screen_x %= NUM_COLS;
+    }
+    //check if we need to scroll
+    if(screen_y >= NUM_ROWS || (screen_y >= NUM_ROWS-1 && screen_x >= NUM_COLS))
+    {
+        if(screen_x == NUM_COLS){
+            textOverflow++;
+        }
+        int r;
+        int cc;
+        //writes each line of data witht the row below it. writes the last row as empty
+        for(r = 0; r < NUM_ROWS; r++){
+            for(cc = 0; cc < NUM_COLS; cc++){
+                if (r == NUM_ROWS-1){
+                    *(uint8_t *)(video_mem + ((NUM_COLS * r + cc) << 1)) = '\0';
+                }
+                else{
+                *(uint8_t *)(video_mem + ((NUM_COLS * r + cc) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS * (r+1) + cc) << 1));
+                }
+            }
+        }
+
+        //at end set col = 0 and row = last row
+        screen_x = 0;
+        if (screen_y >= NUM_ROWS){
+            screen_y--;
+        }
+        // screen_y = NUM_ROWS-1;
+    }
+    else
+    {
+    //if at end of x axis we have overflow
+        if (screen_x == NUM_COLS)
+        {
+            screen_y++;
+            screen_x = 0;
+            textOverflow ++;
+        }
+        else{
+            screen_x %= NUM_COLS;
+        }
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
     update_cursor(screen_x,screen_y);

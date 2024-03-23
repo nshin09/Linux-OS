@@ -6,10 +6,19 @@
 #define _LIB_H
 
 #include "types.h"
+
+//global vars
+int textOverflow;   //tells us if there was text overflow into next line
+
+
 // user made value to reset screen pointer values
 extern void reset_scrn_xy();
-//gets screen x val
+//gets screen x and y val
+extern int getScreenX();
+extern int getScreenY();
 extern void decr_scrn_x();
+//moves up a line in case of overflow text
+extern void move_line_up();
 //updates the cursor 
 extern void update_cursor(int x, int y);
 //added test interrupts

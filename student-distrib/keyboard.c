@@ -3,10 +3,6 @@
 #include "keyboard.h"
 #include "terminal.h"
 
-/*
-static char Scancodes[] = {' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', ' ', ' ', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']',
-                    ' ', ' ', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', '`', ' ', '\\', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'};
-*/
 
 /* void initialize_keyboard();
  * Inputs: None
@@ -21,6 +17,8 @@ void initialize_keyboard(){
     shift = 0;
     ctrl = 0;
     alt = 0;
+    textOverflow = 0;
+   
 }
 
 /* char findChar(int c);
@@ -206,10 +204,9 @@ void keyboard_handler(){
     cli();
     int Scancode = inb(0x60);
     sti();
-
     int SetFlag = 0;
     SetFlag = check_flags(Scancode);
-
+    // printf("%d", textOverflow);
     if(ctrl == 1 && Scancode == 0x26) // 0x26 is L 
     {
         clear();
@@ -218,6 +215,12 @@ void keyboard_handler(){
         send_eoi(0x01); // need to send eoi to irq_1
         return;
 
+    }
+    if (Scancode == 0x0F){  //scancode for tab button. put 4 spaces
+        int i;
+        for (i = 0; i < 3; i++){
+            putc(' ');
+        }
     }
 
     if(Scancode == 0x1C) // 1C is the "Enter " scancode
@@ -239,6 +242,7 @@ void keyboard_handler(){
         terminal_read(0, buf, keyboard_buffer_index);
         terminal_write(0, buf, keyboard_buffer_index);
         keyboard_buffer_index = 0;
+        textOverflow = 0;
 
     }
     else if(Scancode == 0x0E) //0x0E is the "backspace" scancode
@@ -247,15 +251,26 @@ void keyboard_handler(){
         {
             keyboard_buffer_index--;
         }
-        decr_scrn_x();
-        putc(' ');
-        decr_scrn_x();
+        if (getScreenX() == 0 && textOverflow > 0){
+            
+            move_line_up();    
+            textOverflow--;
+            putc(' ');
+            move_line_up();
+        }
+        else{
+            decr_scrn_x();
+            putc(' ');
+            decr_scrn_x();
+        }
+        
+        
 
     }   
     else
     {
         
-        if(keyboard_buffer_index < 128 && Scancode < 0x81)
+        if(keyboard_buffer_index < 128 && Scancode < 0x81) 
         {
             char key;
             if(caps_lock == 1 && shift == 1){
@@ -279,8 +294,6 @@ void keyboard_handler(){
             if(SetFlag != 1){
                 keyboard_buffer[keyboard_buffer_index] = key;
                 keyboard_buffer_index++;
-
-            
                 putc(key);
             }
         }

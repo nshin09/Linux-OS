@@ -16,6 +16,7 @@ int shift;
 int ctrl;
 int alt;
 
+
 //Converts a scancode to a character
 char findChar(int c);
 char findShiftedChar(int c);
