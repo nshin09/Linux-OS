@@ -22,7 +22,7 @@ char findChar(int c);
 char findShiftedChar(int c);
 char findCapsChar(int c);
 char keyboard_buffer[128]; 
-char buf[128];
+char terminal_buf[128];
 int32_t keyboard_buffer_index;
 
 #endif

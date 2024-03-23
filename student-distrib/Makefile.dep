@@ -17,4 +17,4 @@ paging.o: paging.c paging.h types.h paging_asm.h lib.h x86_desc.h
 rtc.o: rtc.c rtc.h types.h i8259.h lib.h
 terminal.o: terminal.c keyboard.h types.h lib.h terminal.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h paging.h idt_asm.h \
-  terminal.h keyboard.h rtc.h
+  terminal.h keyboard.h rtc.h file_system.h multiboot.h

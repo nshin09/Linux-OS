@@ -6,6 +6,7 @@
 #include "terminal.h"
 #include "keyboard.h"
 #include "rtc.h"
+#include "file_system.h"
 #define PASS 1
 #define FAIL 0
 
@@ -132,17 +133,17 @@ int bound_range_exception(){
 // add more tests here
 
 /* Checkpoint 2 tests */
-int terminal_test()
-{
-	TEST_HEADER;
-	// int i;
-	char buf[128];
+// int terminal_test()
+// {
+// 	TEST_HEADER;
+// 	// int i;
+// 	char buf[128];
 	
-	int nbytes = terminal_read(0, buf, 128);
-	nbytes = terminal_write(0, buf, 128);
+// 	int nbytes = terminal_read(0, buf, 128);
+// 	nbytes = terminal_write(0, buf, 128);
 
-	return PASS;
-}
+// 	return PASS;
+// }
 int rtc_write_read_test(){
 	TEST_HEADER;
 	int i;
@@ -179,6 +180,38 @@ int rtc_write_read_test(){
 	return PASS;
 
 }
+
+int terminal_test()
+{
+	TEST_HEADER;
+	int i;
+	for(i = 0; i < 10; i++)
+	{
+		keyboard_buffer[i] = 'a';
+		
+	}
+	keyboard_buffer_index = 10;
+
+	printf("\n");
+	printf("%d characters in keyboard buffer: ", 10);
+	for(i = 0; i < 10; i++)
+	{
+		putc(keyboard_buffer[i]);
+		
+	}
+	char buffa[128];
+	printf("\n");
+	printf("calling read: with %d nbytes", 100000);
+	printf("\n");
+	terminal_read(0, buffa, 100000);
+	printf("calling write: with %d nbytes", 100000);
+	printf("\n");
+	printf("terminal buffer: ");
+	terminal_write(0, buffa, 100000);
+	printf("\n");
+	keyboard_buffer_index = 0;
+	return PASS;
+}
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -192,8 +225,8 @@ void launch_tests(){
 	// TEST_OUTPUT("paging range test", page_fault_test());
 	// TEST_OUTPUT("debug exception test", test_debug_error());
 	// TEST_OUTPUT("bounds exception test", bound_range_exception());
-	// TEST_OUTPUT("terminal test", terminal_test());
-	TEST_OUTPUT("rtc_write_read test", rtc_write_read_test());
+	TEST_OUTPUT("terminal test", terminal_test());
+	// TEST_OUTPUT("rtc_write_read test", rtc_write_read_test());
 
 	// launch your tests here
 }
