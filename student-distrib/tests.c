@@ -5,6 +5,7 @@
 #include "idt_asm.h"
 #include "terminal.h"
 #include "keyboard.h"
+#include "rtc.h"
 #define PASS 1
 #define FAIL 0
 
@@ -142,6 +143,29 @@ int terminal_test()
 
 	return PASS;
 }
+int rtc_write_read_test(){
+	TEST_HEADER;
+	int i;
+	int result;
+	int rate = 1024;
+	while(rate >= 2)
+	{
+		result = rtc_write(NULL, &rate, 4); // 100 is a meaningless arbitrary number.
+		printf("test %d HZ\n", rate);
+		for(i = 0; i < 20; i++)
+		{
+			result = rtc_read(NULL,NULL,NULL);
+			printf("1");
+		}
+		printf("\n");
+		rate = rate / 2;
+	}
+	result = rtc_open(NULL);
+	result = rtc_close(NULL);
+	
+	return PASS;
+
+}
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -156,7 +180,7 @@ void launch_tests(){
 	// TEST_OUTPUT("debug exception test", test_debug_error());
 	// TEST_OUTPUT("bounds exception test", bound_range_exception());
 	// TEST_OUTPUT("terminal test", terminal_test());
-
+	TEST_OUTPUT("rtc_write_read test", rtc_write_read_test());
 
 	// launch your tests here
 }

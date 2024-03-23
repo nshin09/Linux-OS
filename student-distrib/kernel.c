@@ -55,7 +55,9 @@ void entry(unsigned long magic, unsigned long addr) {
     if (CHECK_FLAG(mbi->flags, 3)) {
         int mod_count = 0;
         int i;
-        module_t* mod = (module_t*)mbi->mods_addr;
+        module_t* mod = (module_t*)mbi->mods_addr; 
+        // initialize the file_system right here!!!!!!
+        file_system_init(mod->mod_start);
         while (mod_count < mbi->mods_count) {
             printf("Module %d loaded at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_start);
             printf("Module %d ends at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_end);
@@ -165,11 +167,12 @@ void entry(unsigned long magic, unsigned long addr) {
 
 #ifdef RUN_TESTS
     /* Run tests */
+    clear();
     launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
     /* Clear the screen. */
-    clear();
+    //clear();
 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
