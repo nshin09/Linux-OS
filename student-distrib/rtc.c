@@ -3,14 +3,14 @@
 #include "lib.h"
 // global variable to be used as a flag if int occurred
 volatile int rtc_int;
-int rtc_ticks = 1;
+volatile int rtc_ticks;
+int rtc_rate;
 /* void: rtc_init(void)
  * Inputs: void
  * Return Value: void
  * Function: Initialize rtc, used osDev for documentation */
 void rtc_init()
 {
-    cli();
     outb(0x8A, 0x70);
     // outb(0x20,0x71);
     // sti();
@@ -23,7 +23,8 @@ void rtc_init()
     outb(prev | 0x40, 0x71);	// write the previous value ORed with 0x40. This turns on bit 6 of register B
     // sti();
     enable_irq(0x08); // this command enables the irq_8 that was just initialized
-    
+    rtc_rate = 1; // default frequency 1024/1024;
+    rtc_ticks = rtc_rate;
 }
 /* void: rtc_handler(void)
  * Inputs: void
@@ -31,20 +32,27 @@ void rtc_init()
  * Function: Calls handler for rtc to generate interrupt */
 void rtc_handler()
 {
-    cli();
+    // cli();
     outb(0x8C, 0x70);	// select register C
-    inb(0x71);		// just throw away contents
-    rtc_int = 1;
+    inb(0x71);		
+    rtc_ticks--;
+    if(rtc_ticks == 0)
+    {
+        rtc_int = 1;
+        rtc_ticks = rtc_rate;
+    }// just throw away contents
          
    
-    sti();
+    // sti();
     // test_interrupts();
 
     send_eoi(0x08); // end of instruction for the irq_8. 
 }
 // unused for cp1
 int32_t rtc_open(const uint8_t* filename) {
-    rtc_change_rate(2); // 2 represents the minimum frequency
+    // rtc_change_rate(2); // 2 represents the minimum frequency
+    rtc_rate = 512; // 512 represents a frequency of 2 hertz. 
+    rtc_ticks = rtc_rate; 
     return 0;
 }
 // unused for cp1
@@ -61,35 +69,38 @@ int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes) {
     return 0;
 }
 // unused for cp1
-int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes) {
+int32_t rtc_write (int32_t fd, const int32_t* buf, int32_t nbytes) {
 
-   if(rtc_change_rate(*(uint8_t*)(buf)) == 0);
+    if(*buf > 1024)
     {
+        rtc_rate = 1;
+        rtc_ticks = rtc_rate;
         return 0;
     }
-
-    return -1;
+    rtc_rate = 1024 / (*buf); // 1024 / frequency;
+    rtc_ticks = rtc_rate;
+    return 0;
 }
 // unused for cp1
 int32_t rtc_change_rate(int32_t frequency)
 {
       
-    int log2 = 0;
-    int temp = frequency;
-    while(temp > 1)
-    {
-        temp /= 2;
-        log2++;
-    } // used to calculate the log2(frequency).
+//     int log2 = 0;
+//     int temp = frequency;
+//     while(temp > 1)
+//     {
+//         temp /= 2;
+//         log2++;
+//     } // used to calculate the log2(frequency).
     
-    int rate =  (MAX_RATE - log2) + 1; // rearrangement to find rate of equation frequency = 32768 >> (rate - 1)
-    rate &= MAX_RATE; // rate cannot exceed 15
-   // controls the rate at which an interrupt arises.
-    cli(); // disable interrupts to perform operation
-    outb(0x8A,0x70);		// set index to register A, disable NMI. 0x8A represents the RTC status register A. 
-    char prev = inb(0x71);	// get initial value of register A
-    outb(0x8A,0x70);		// reset index to A
-    outb((prev & 0xF0) | rate, 0x71); //write only our rate to A. Note, rate is the bottom 4 bits. 0xF0 masks the top 4 bits.
-    sti(); // enable interrupts once again
+//     int rate =  (MAX_RATE - log2) + 1; // rearrangement to find rate of equation frequency = 32768 >> (rate - 1)
+//     rate &= MAX_RATE; // rate cannot exceed 15
+//    //controls the rate at which an interrupt arises.
+//     //disable interrupts to perform operation
+//     outb(0x8A,0x70);		// set index to register A, disable NMI. 0x8A represents the RTC status register A. 
+//     char prev = inb(0x71);	// get initial value of register A
+//     outb(0x8A,0x70);		// reset index to A
+//     outb((prev & 0xF0) | rate, 0x71); //write only our rate to A. Note, rate is the bottom 4 bits. 0xF0 masks the top 4 bits.
+//     //enable interrupts once again
     return 0;  // indicates the program succesfully ran
 }

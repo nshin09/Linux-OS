@@ -152,12 +152,25 @@ int rtc_write_read_test(){
 	{
 		result = rtc_write(NULL, &rate, 4); // 100 is a meaningless arbitrary number.
 		printf("test %d HZ\n", rate);
-		for(i = 0; i < 20; i++)
+		if(rate > 64)
 		{
+			for(i = 0; i < 40; i++)
+			{
 			result = rtc_read(NULL,NULL,NULL);
 			printf("1");
+			}
+			printf("\n");
 		}
-		printf("\n");
+		else 
+		{
+			for(i = 0; i < 20; i++)
+			{
+			result = rtc_read(NULL,NULL,NULL);
+			printf("1");
+			}
+			printf("\n");
+		}
+		
 		rate = rate / 2;
 	}
 	result = rtc_open(NULL);
