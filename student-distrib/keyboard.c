@@ -296,8 +296,8 @@ void keyboard_handler(){
         //terminal_test();
         putc('\n');
         //Prints the Keyboard buffer on enter pressed
-        terminal_read(0, terminal_buf, keyboard_buffer_index);
-        terminal_write(0, terminal_buf, keyboard_buffer_index);
+        // terminal_read(0, terminal_buf, keyboard_buffer_index);
+        // terminal_write(0, terminal_buf, keyboard_buffer_index);
         keyboard_buffer_index = 0;
         textOverflow = 0;
 

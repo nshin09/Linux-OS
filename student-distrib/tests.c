@@ -133,17 +133,7 @@ int bound_range_exception(){
 // add more tests here
 
 /* Checkpoint 2 tests */
-// int terminal_test()
-// {
-// 	TEST_HEADER;
-// 	// int i;
-// 	char buf[128];
-	
-// 	int nbytes = terminal_read(0, buf, 128);
-// 	nbytes = terminal_write(0, buf, 128);
 
-// 	return PASS;
-// }
 int rtc_write_read_test(){
 	TEST_HEADER;
 	int i;
@@ -216,22 +206,47 @@ int terminal_test()
 int file_system_test()
 {
 	int i;
-	int result;
+	int result = 0;
 	dentry_t entry;
-	unsigned char bluffa[4096];
+	unsigned char bluffa[187];
 	TEST_HEADER;
+	// char fname[4] = {'g','r','e','p'};
 	char fname[10] = {'f','r','a','m','e','0','.','t','x','t'};
 	result += read_dentry_by_name((uint8_t*)fname,&entry);
+	printf("\n");
 	for(i = 0; i < 10; i++)
 	{
 		printf("%c", entry.file_name[i]);
 	}
-	result += read_data(entry.node_num,0,(uint8_t*)bluffa,4096);
-	// for(i = 0; i < 4096; i++)
-	// {
-	// 	printf("%c",bluffa[i]);
-	// }
-	printf("\n %d", result);
+	result += read_data(entry.node_num,0,(uint8_t*)bluffa,187);
+	for(i = 0; i < 187; i++)
+	{
+		printf("%c",bluffa[i]);
+	}
+	printf("\n %d \n", result);
+	return PASS;
+}
+int file_system_test_large()
+{
+	int i;
+	int result = 0;
+	dentry_t entry;
+	unsigned char bluffa[6149];
+	TEST_HEADER;
+	char fname[4] = {'g','r','e','p'};
+	// char fname[10] = {'f','r','a','m','e','0','.','t','x','t'};
+	result += read_dentry_by_name((uint8_t*)fname,&entry);
+	printf("\n");
+	for(i = 0; i < 4; i++)
+	{
+		printf("%c", entry.file_name[i]);
+	}
+	result += read_data(entry.node_num,0,(uint8_t*)bluffa,6149);
+	for(i = 0; i < 6149; i++)
+	{
+		printf("%c",bluffa[i]);
+	}
+	printf("\n %d \n", result);
 	return PASS;
 }
 
@@ -242,9 +257,9 @@ int list_file_systems()
 	int name_length;
 	dentry_t files;
 	printf("\n");
-	for(i = 0; i < 20; i++)
+	for(i = 0; i < 17; i++)
 	{
-		int temp = read_dentry_by_index(i, &files);
+		read_dentry_by_index(i, &files);
 		name_length = strlen((int8_t*)files.file_name);
 		for(j = 0; j < name_length && j < 32;j++)
 		{
@@ -252,11 +267,28 @@ int list_file_systems()
 
 		}
 		printf("   file type:%d", files.file_type);
-		// printf("   %d", sizeof(files));
+		printf("  size: %d", (inodes_ptr + files.node_num)->length);
 		printf("\n");
 
 	}
 	return PASS;
+	
+}
+
+int file_dne()
+{
+	TEST_HEADER;
+	char fname[6] = {'e','c','e','3','9','1'};
+	int result = file_open((uint8_t*)fname);
+
+	if (result == -1){
+		printf("\n");
+		printf("file not found");
+		printf("\n");
+		return PASS;
+	}
+
+	return FAIL;
 	
 }
 /* Checkpoint 3 tests */
@@ -272,9 +304,11 @@ void launch_tests(){
 	// TEST_OUTPUT("paging range test", page_fault_test());
 	// TEST_OUTPUT("debug exception test", test_debug_error());
 	// TEST_OUTPUT("bounds exception test", bound_range_exception());
-	// TEST_OUTPUT("terminal test", terminal_test());
+	TEST_OUTPUT("terminal test", terminal_test());
 	// TEST_OUTPUT("rtc_write_read test", rtc_write_read_test());
 	// TEST_OUTPUT("fs test", file_system_test());
-	TEST_OUTPUT("list files", list_file_systems());
+	// TEST_OUTPUT("large fs test", file_system_test_large());
+	// TEST_OUTPUT("list files", list_file_systems());
+	// TEST_OUTPUT("test file doesnt exist", file_dne());
 	// launch your tests here
 }

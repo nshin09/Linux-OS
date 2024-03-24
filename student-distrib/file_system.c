@@ -35,7 +35,8 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
         {
             return -1;
         }
-        block_ptr = (uint32_t*)(data_block_ptr + byte_index + (4096 * block_index)); // find where you want to write to buf
+        block_ptr = (uint32_t*)(data_block_ptr + byte_index + (4096 * block_number)); // find where you want to write to buf
+        // printf("%c", (uint8_t)(*block_ptr));
         *buf = (uint8_t)(*block_ptr); // not quite sure if this works the way i want it to?
         // memcpy(buf,block_ptr, 1);
         i++;
@@ -47,7 +48,12 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 }
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) //dentry->node_num
 {
+
+
     int length = strlen((int8_t*)fname);
+
+
+   
     if(length > 32)
     {
         length = 32;
@@ -99,8 +105,8 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes)
 
 int32_t file_open(const uint8_t* filename)
 {
-
-    return 0;
+    dentry_t d;
+    return read_dentry_by_name(filename, &d);
 }
 int32_t directory_open(const uint8_t* filename)
 {
