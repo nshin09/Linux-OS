@@ -212,6 +212,53 @@ int terminal_test()
 	keyboard_buffer_index = 0;
 	return PASS;
 }
+
+int file_system_test()
+{
+	int i;
+	int result;
+	dentry_t entry;
+	unsigned char bluffa[4096];
+	TEST_HEADER;
+	char fname[10] = {'f','r','a','m','e','0','.','t','x','t'};
+	result += read_dentry_by_name((uint8_t*)fname,&entry);
+	for(i = 0; i < 10; i++)
+	{
+		printf("%c", entry.file_name[i]);
+	}
+	result += read_data(entry.node_num,0,(uint8_t*)bluffa,4096);
+	// for(i = 0; i < 4096; i++)
+	// {
+	// 	printf("%c",bluffa[i]);
+	// }
+	printf("\n %d", result);
+	return PASS;
+}
+
+int list_file_systems()
+{
+	TEST_HEADER;
+	int i,j;
+	int name_length;
+	dentry_t files;
+	printf("\n");
+	for(i = 0; i < 20; i++)
+	{
+		int temp = read_dentry_by_index(i, &files);
+		name_length = strlen((int8_t*)files.file_name);
+		for(j = 0; j < name_length && j < 32;j++)
+		{
+			printf("%c", files.file_name[j]);
+
+		}
+		printf("   file type:%d", files.file_type);
+		// printf("   %d", sizeof(files));
+		printf("\n");
+
+	}
+	return PASS;
+	
+}
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -225,8 +272,9 @@ void launch_tests(){
 	// TEST_OUTPUT("paging range test", page_fault_test());
 	// TEST_OUTPUT("debug exception test", test_debug_error());
 	// TEST_OUTPUT("bounds exception test", bound_range_exception());
-	TEST_OUTPUT("terminal test", terminal_test());
+	// TEST_OUTPUT("terminal test", terminal_test());
 	// TEST_OUTPUT("rtc_write_read test", rtc_write_read_test());
-
+	// TEST_OUTPUT("fs test", file_system_test());
+	TEST_OUTPUT("list files", list_file_systems());
 	// launch your tests here
 }

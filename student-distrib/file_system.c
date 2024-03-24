@@ -47,7 +47,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 }
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) //dentry->node_num
 {
-    int length = strlen((uint8_t*)fname);
+    int length = strlen((int8_t*)fname);
     if(length > 32)
     {
         length = 32;
@@ -57,15 +57,15 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) //dentry->no
     int i;
     for(i = 0; i < 63; i++) // iterate through each block
     {
-        entry_length = strlen((uint8_t*)entry_ptr[i].file_name);
+        entry_length = strlen((int8_t*)entry_ptr[i].file_name);
         if(entry_length > 32)
         {
             entry_length = 32;
         }
-         match = strncmp((uint8_t*)fname,(uint8_t*)entry_ptr[i].file_name,32); // max file name is 32 bytes
+         match = strncmp((int8_t*)fname,(int8_t*)entry_ptr[i].file_name,32); // max file name is 32 bytes
         if(length == entry_length && match == 0)
         {
-            strcpy(dentry->file_name, entry_ptr[i].file_name); // copy name, node number, and file type to the dentry parameter. 
+            strncpy((int8_t*)dentry->file_name,(int8_t*)entry_ptr[i].file_name,32); // copy name, node number, and file type to the dentry parameter. 
             dentry->node_num = entry_ptr[i].node_num;
             dentry->file_type = entry_ptr[i].file_type;
             return 0;
@@ -80,7 +80,7 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
     {
         return -1;
     }
-    strcpy(dentry->file_name, entry_ptr[index].file_name); // copy name, node number, and file type to the dentry parameter. 
+    strncpy((int8_t*)dentry->file_name,(int8_t*)entry_ptr[index].file_name,32); // copy name, node number, and file type to the dentry parameter. 
     dentry->node_num = entry_ptr[index].node_num;
     dentry->file_type = entry_ptr[index].file_type;
     return 0;
