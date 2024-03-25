@@ -84,6 +84,15 @@ char findChar(int c){
     return '\0';
 }
 
+/* char findShiftedChar(int c);
+ * Inputs: c - The keyboard scancode that needs to be
+               converted into a shifted character.
+ * Return Value: The character equivalent of the keyboard
+                 scancode assuming shift is pressed.
+ * Function: Converts a keyboard scancode into either the
+             capital version of that key or the secondary symbol
+             on that key.
+ */
 char findShiftedChar(int c){
     switch(c) {
         case 0x02: return '!';
@@ -139,6 +148,16 @@ char findShiftedChar(int c){
     }
     return '\0';
 }
+
+/* char findCapsAndShiftedChar(int c);
+ * Inputs: c - The keyboard scancode that needs to be
+               converted into a character.
+ * Return Value: The character equivalent of the keyboard
+                 scancode assuming caps lock is true and shift is pressed.
+ * Function: Converts a keyboard scancode into either the
+             lowercase letter or the secondary symbol on that key, 
+             mimicing what happens when Caps lock is true and shift is pressed.
+ */
 char findCapsAndShiftedChar(int c){
     switch(c) {
         case 0x02: return '!';
@@ -194,6 +213,15 @@ char findCapsAndShiftedChar(int c){
     return '\0';
 }
 
+/* char findCapsChar(int c);
+ * Inputs: c - The keyboard scancode that needs to be
+               converted into a character.
+ * Return Value: The character equivalent of the keyboard
+                 scancode assuming caps lock is true.
+ * Function: Converts a keyboard scancode into either the
+             uppercase letter or the primary symbol on that key, 
+             mimicing what happens when Caps lock is true.
+ */
 char findCapsChar(int c){
     switch(c) {
         case 0x02: return '1';
@@ -362,6 +390,13 @@ void keyboard_handler(){
     
 }
 
+/* int check_flags(int Scancode);
+ * Inputs: Scancode - The keyboard scancode that was received.
+ * Return Value: 1 if a flag was modified, 0 if no flags were effected.
+ * Function: Sets flags (shift, caps_lock, ctrl, etc.) based on the 
+ *           Scancode that was received and returns whether any flags
+ *           were changed.
+ */
 int check_flags(int Scancode)
 {
  switch(Scancode) {

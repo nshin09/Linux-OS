@@ -105,8 +105,8 @@ int page_fault_test()
 	return FAIL; // should never get here
 }
 
-/* void: test_debug_error(void)
- * Inputs: void
+/* void: test_debug_error()
+ * Inputs: None
  * Return Value: FAIL if FAIL, SUCCESS if worked
  * Function: tests if debug error happens*/
 int test_debug_error(){
@@ -117,8 +117,8 @@ int test_debug_error(){
 
 	return FAIL;
 }
-/* void: bound_range_exception(void)
- * Inputs: void
+/* void: bound_range_exception()
+ * Inputs: None
  * Return Value: FAIL if FAIL, SUCCESS if worked
  * Function: tests bound_range handler */
 int bound_range_exception(){
@@ -134,6 +134,11 @@ int bound_range_exception(){
 
 /* Checkpoint 2 tests */
 
+/* void: rtc_write_read_test()
+ * Inputs: None
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: tests if rtc_read and rtc_write run without
+ * 			 causing any errors. */
 int rtc_write_read_test(){
 	TEST_HEADER;
 	int i;
@@ -171,6 +176,12 @@ int rtc_write_read_test(){
 
 }
 
+/* void: terminal_test()
+ * Inputs: None
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: tests if terminal_read and terminal_write correctly
+ * 			 read from a predefined buffer and then displays that 
+ * 		     message on screen. */
 int terminal_test()
 {
 	TEST_HEADER;
@@ -203,6 +214,12 @@ int terminal_test()
 	return PASS;
 }
 
+/* void: file_system_test()
+ * Inputs: None
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: tests if a normal sized file can be read and
+ * 			 and have it's content displayed. Tests the 
+ * 		     read_dentry_by_name and read_data functions. */
 int file_system_test()
 {
 	int i;
@@ -226,6 +243,12 @@ int file_system_test()
 	printf("\n %d \n", result);
 	return PASS;
 }
+
+/* void: file_system_test_large()
+ * Inputs: None
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: tests if a file spanning multiple memory blocks 
+ * 		 	 can be read and have it's content displayed. */
 int file_system_test_large()
 {
 	int i;
@@ -250,6 +273,12 @@ int file_system_test_large()
 	return PASS;
 }
 
+/* void: list_file_systems()
+ * Inputs: None
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: Lists all the files in fsdir, along with 
+ * 			 their file types and file sizes. Checks
+ * 		     the read_dentry_by_index function. */
 int list_file_systems()
 {
 	TEST_HEADER;
@@ -275,6 +304,11 @@ int list_file_systems()
 	
 }
 
+/* void: file_dne()
+ * Inputs: None
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: Check if file_open works for files that
+ * 			 don't exist. */
 int file_dne()
 {
 	TEST_HEADER;
@@ -304,7 +338,7 @@ void launch_tests(){
 	// TEST_OUTPUT("paging range test", page_fault_test());
 	// TEST_OUTPUT("debug exception test", test_debug_error());
 	// TEST_OUTPUT("bounds exception test", bound_range_exception());
-	TEST_OUTPUT("terminal test", terminal_test());
+	 TEST_OUTPUT("terminal test", terminal_test());
 	// TEST_OUTPUT("rtc_write_read test", rtc_write_read_test());
 	// TEST_OUTPUT("fs test", file_system_test());
 	// TEST_OUTPUT("large fs test", file_system_test_large());
