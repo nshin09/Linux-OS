@@ -48,18 +48,27 @@ void rtc_handler()
 
     send_eoi(0x08); // end of instruction for the irq_8. 
 }
-// unused for cp1
+/* void rtc_close (int32_t fd) 
+ * Inputs: filename - unused
+ * Return Value: 0
+ * Function: Initializes the default freq to 2HZ. */
 int32_t rtc_open(const uint8_t* filename) {
     // rtc_change_rate(2); // 2 represents the minimum frequency
     rtc_rate = 512; // 512 represents a frequency of 2 hertz. 
     rtc_ticks = rtc_rate; 
     return 0;
 }
-// unused for cp1
+/* void rtc_close (int32_t fd) 
+ * Inputs: fd - unused
+ * Return Value: 0
+ * Function: Does nothing. */
 int32_t rtc_close(int32_t fd) {
     return 0;
 }
-// unused for cp1
+/* void rtc_read (int32_t fd, const int32_t* buf, int32_t nbytes) 
+ * Inputs: fd, nbytes,buf - unused arguments
+ * Return Value: 0
+ * Function: waits for rtc int to be held high so that it can update the screen.  */
 int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes) {
     rtc_int = 0;
 
@@ -68,7 +77,11 @@ int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes) {
     }
     return 0;
 }
-// unused for cp1
+/* void rtc_write (int32_t fd, const int32_t* buf, int32_t nbytes) 
+ * Inputs: fd, nbytes - unused arguments
+            buf - species the frequency that you want to write to
+ * Return Value: void
+ * Function: sets a different amount of ticks for the rtc. */
 int32_t rtc_write (int32_t fd, const int32_t* buf, int32_t nbytes) {
 
     if(*buf > 1024)
@@ -81,7 +94,10 @@ int32_t rtc_write (int32_t fd, const int32_t* buf, int32_t nbytes) {
     rtc_ticks = rtc_rate;
     return 0;
 }
-// unused for cp1
+/* void rtc_change rate(int32_t frequency)
+ * Inputs: frequency - frequency you want to change to. 
+ * Return Value: void
+ * Function: change frequency of the rtc*/
 int32_t rtc_change_rate(int32_t frequency)
 {
       

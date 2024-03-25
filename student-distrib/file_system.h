@@ -5,10 +5,10 @@
 #include "multiboot.h"
 
 typedef struct dentry {
-   uint8_t file_name[32];
+   uint8_t file_name[32];   //max num of char in file name is 32
    uint32_t file_type;
    uint32_t node_num;
-   uint8_t reserved[24];
+   uint8_t reserved[24];    //24 reserved bytes
 } dentry_t;
 
 typedef struct boot_block {

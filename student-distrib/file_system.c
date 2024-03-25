@@ -1,6 +1,10 @@
 #include "file_system.h"
 #include "lib.h"
 
+/* void file_system_init(module_t* start)
+ * Inputs: start- the starting address specified in kernel
+ * Return Value: void
+ * Function: ninitializes the core pointers for file system*/
 void file_system_init(module_t* start)
 {
     boot_block_ptr = (boot_block_t*)start;
@@ -8,6 +12,14 @@ void file_system_init(module_t* start)
     entry_ptr = (dentry_t*)(boot_block_ptr->dir_entries);
     data_block_ptr = (uint8_t*)(inodes_ptr + (boot_block_ptr->num_inodes));
 }
+
+/* int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length)
+ * Inputs: inode - the current inode we want to read from
+            buf - buffer we will be populating with inode data
+            offset - offset into inode
+            length - number of bytes to be copied
+ * Return Value: number of bytes copied, -1 on fail
+ * Function: Reads a specific files data and stores it into a buffer*/
 int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length)
 {
     int i = 0;
@@ -46,14 +58,15 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 
     return i;
 }
+
+/* int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry)
+ * Inputs: fname - the file name we are searching for
+            dentry - current directory we enter
+ * Return Value: 0 if we found the file name, -1 if we did not
+ * Function: Looks for the specified file name within a dentry*/
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) //dentry->node_num
 {
-
-
     int length = strlen((int8_t*)fname);
-
-
-   
     if(length > 32)
     {
         length = 32;
@@ -80,6 +93,12 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) //dentry->no
 
     return -1; //if loop terminates that means we could not find matching name. 
 }
+
+/* int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
+ * Inputs: index - finds the dentry at the specified index 
+            dentry - current directory we enter
+ * Return Value: 0 if file exists, -1 if not
+ * Function: Looks for the specified index within a dentry*/
 int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
 {
     if(index >= 63) // 63 is the number of directory entries in the bootblock.
@@ -92,6 +111,7 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
     return 0;
 }
 
+//nothing for cp2, directly using helper
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes)
 {
     
@@ -103,6 +123,10 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes)
     return 0;
 }
 
+/* int32_t file_open(const uint8_t* filename)
+ * Inputs: filename - filename we are looking to open
+ * Return Value: 0 if file exists, -1 if not
+ * Function: Opens a specified file*/
 int32_t file_open(const uint8_t* filename)
 {
     dentry_t d;
