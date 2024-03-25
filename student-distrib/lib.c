@@ -16,6 +16,10 @@ static char* video_mem = (char *)VIDEO;
 int endOfScreenEnter = 0;
 
 /*User defined functions*/
+/* void decr_scrn_x();
+ * Inputs: None
+ * Return Value: none
+ * Function: decreases screen x by one and updates the cursor */
 void decr_scrn_x(){
     if(screen_x > 0)
     {
@@ -24,14 +28,28 @@ void decr_scrn_x(){
     update_cursor(screen_x,screen_y);
 }
 
+/* void getScreenX();
+ * Inputs: None
+ * Return Value: the current x value of the cursor.
+ * Function: Gets the current x value of the cursor. */
 int getScreenX(){
     return screen_x;
 }
 
+/* void getScreenY();
+ * Inputs: None
+ * Return Value: the current y value of the cursor.
+ * Function: Gets the current y value of the cursor. */
 int getScreenY(){
     return screen_y;
 
 } 
+
+/* void move_line_up();
+ * Inputs: None
+ * Return Value: None
+ * Function: Moves the cursor up one row and to the end
+ *           of that row. */
 void move_line_up(){
     if(screen_y > 0){
         screen_x = NUM_COLS-1;

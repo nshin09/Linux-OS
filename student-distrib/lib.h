@@ -16,6 +16,7 @@ extern void reset_scrn_xy();
 //gets screen x and y val
 extern int getScreenX();
 extern int getScreenY();
+//Decrease screen x value by 1
 extern void decr_scrn_x();
 //moves up a line in case of overflow text
 extern void move_line_up();

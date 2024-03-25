@@ -21,8 +21,12 @@ int alt;
 char findChar(int c);
 char findShiftedChar(int c);
 char findCapsChar(int c);
+
+//Buffers to hold what has been typed on the keyboard
 char keyboard_buffer[128]; 
 char terminal_buf[128];
+
+//Index of the first unfilled space in the keyboard_buffer
 int32_t keyboard_buffer_index;
 
 #endif
