@@ -5,22 +5,18 @@ IDT getting “no such instruction: extern void idt_initializer()” error
     loaded out of order and Boot.S checked if the function existed before idt.c had actually created the function. Initializing idt in
     kernel.c and removing “include idt.h” from Boot.S solved this issue.
 
-
 Program boot loops whenever interrupts are enabled and we run our divide by zero test.
 	Solution: The interrupt table had been set up incorrectly. Our Reserved values hadn’t been set correctly so the interrupts weren’t 
     being interpreted as interrupts.
-
 
 Exception print function is printing the wrong code for the divide by zero error
     Solution: When we do “pushl $0” it’s not actually pushing zero, so the print exception function is instead taking the saved flags 
     value as the error. To solve this we made individual functions to handle each interrupt/exception instead of having 1 general 
     interrupt handler that takes the interrupt code as an argument.
 
-
 Program accepts one keyboard interrupt but then freezes, not accepting any more keyboard inputs
 	Solution: We had also started work on the RTC. Our RTC code didn’t have the registers set up correctly, so when we set those up 
     that solved the Keyboard interrupt issue. Additionally, we hadn’t been sending out an EOI signal to the pic at first.
-
 
 RTC Interrupts don’t occur
 	Solution: We hadn’t set up all of the registers properly. Registers A and B had been set up but we had read some incorrect 
@@ -29,6 +25,32 @@ RTC Interrupts don’t occur
 
 
 Checkpoint 2:
+
+Keyboard printing characters after enter.
+    Solution: We had an issue with how we were handling/printing our keyboard buffer. Because the buffer receives a newline character
+    when the enter key is pressed, and because we were printing as many characters as had been typed, things weren't lining up. The
+    buffer we had created to use with read and write only receiving data upto when enter was pressed but was outputting as many
+    characters as had been typed, meaning that the old data of the temp buffer was also being printed whenever we were running our test.
+
+After the screen is cleared, typing no longer works.
+    Solution: When we were clearing the screen from Ctrl+L we exited our keyboard handler function early. This caused the 
+    send EOI signal to not occur, meaning that any future keyboard interrupts weren't being received. By adding send_eoi before 
+    returning after clearing the screen, we were able to type after clearing the screen. 
+
+Clear screen caused the cursor to appear at the bottom of the screen.
+    Solution: Because of the code we added to make the cursor follow where the user is typing, the cursor started to appear at incorrect
+    places whenever the screen was cleared. To fix this, we made the clear function also reset the cursor's position to (0,0).
+
+Read file outputting random junk data.
+    Solution: The way that we were accessing file information was incorrect. We had been using the offset into a file as the address
+    of that file when creating a pointer to read file data. This meant that what we were actually reading information from other 
+    memory addresses that hadn't been filled with anything, causing the system to output junk data.
+
+RTC read function gets stuck and causes RTC not to work.
+    Solution: We were disabling interrupts at the start of this function. Since RTC_read waits for an RTC interrupt to occur,
+    disabling interrupts at the start of this function caused the program to get stuck with no way to exit. By removing the line
+    that disable interrupts, RTC functionality started working.
+
 Checkpoint 3:
 Checkpoint 4:
 Checkpoint 5:
