@@ -3,6 +3,22 @@
 
 #include "types.h"
 
+typedef struct __attribute__((packed)) page_table_t {
+    uint32_t present        : 1;
+    uint32_t read_write     : 1;
+    uint32_t user_supervisor: 1;
+    uint32_t write_through  : 1;
+    uint32_t cache_disabled : 1;
+    uint32_t accessed       : 1;
+    uint32_t reserved       : 1;
+    uint32_t page_size      : 1;
+    uint32_t global_page    : 1;
+    uint8_t  available      : 3;
+    uint32_t addr           : 20;
+} page_table_t;
+
+
+
 extern void syscall_handler_c(int call_num, int arg1, int arg2, int arg3);
 
 //System calls needed for cp3

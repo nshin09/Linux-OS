@@ -6,12 +6,6 @@ int32_t halt (uint8_t status){
     return 0;
 }
 
-int32_t execute (const uint8_t* command){
-    //First, Check if given filename is an executable filetype
-
-    return 0;
-}
-
 int32_t read (int32_t fd, void* buf, int32_t nbytes){
     //Get File from File Descriptor Table?
     //file = fdt[fd]
@@ -54,6 +48,11 @@ int32_t sigreturn (void){
 }
 
 
+int32_t execute (const uint8_t* command){
+    //First, Check if given filename is an executable filetype
+    
+    return 0;
+}
 void syscall_handler_c(int call_num, int arg1, int arg2, int arg3){
     printf("Got system call %d, gets args %d, %d, and %d\n", call_num, arg1, arg2, arg3);
 

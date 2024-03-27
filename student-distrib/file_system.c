@@ -11,6 +11,16 @@ void file_system_init(module_t* start)
     inodes_ptr = (inodes_t*)(boot_block_ptr + 1);
     entry_ptr = (dentry_t*)(boot_block_ptr->dir_entries);
     data_block_ptr = (uint8_t*)(inodes_ptr + (boot_block_ptr->num_inodes));
+    int i;
+    for(i=0; i<FD_TABLE_ENTRIES;i++){
+        fd_table[i].fop_table_ptr = NULL;
+        fd_table[i].flags = 1;
+        fd_table[i].file_position = 0;
+        fd_table[i].inode = 0;
+    }
+    // if(i==0){
+
+    // }
 }
 
 /* int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length)
@@ -129,6 +139,13 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes)
  * Function: Opens a specified file*/
 int32_t file_open(const uint8_t* filename)
 {
+    int i;
+    int canOpen = 0;
+    for(i=2;i<FD_TABLE_ENTRIES;i++){
+        if (fd_table[i].flags == 1){
+
+        }
+    }
     dentry_t d;
     return read_dentry_by_name(filename, &d);
 }

@@ -112,7 +112,7 @@ void idt_initializer(){
     idt[0x80].reserved4 = 0;
     idt[0x80].size = 1;
     idt[0x80].seg_selector = KERNEL_CS;
-    idt[0x80].dpl = 0;
+    idt[0x80].dpl = 3; //dpl = 3 for system calls so its accessible from user space via int instruction
     SET_IDT_ENTRY(idt[0x80], syscall_handler);
 
 }

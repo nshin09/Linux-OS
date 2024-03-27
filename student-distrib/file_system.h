@@ -4,6 +4,8 @@
 #include "lib.h"
 #include "multiboot.h"
 
+#define FD_TABLE_ENTRIES 8
+
 typedef struct dentry {
    uint8_t file_name[32];   //max num of char in file name is 32
    uint32_t file_type;
@@ -24,11 +26,26 @@ typedef struct inodes {
     uint32_t block_num[1023]; // 1023 is the max number of data blocks
 } inodes_t;
 
+typedef struct fop_table_t {
+    int32_t (*open) (const uint8_t* filename);
+    int32_t (*close)(int32_t fd);
+    int32_t (*read)(int32_t fd, void* buf, int32_t nbytes);
+    int32_t (*write) (int32_t fd, const int32_t* buf, int32_t nbytes);
+} fop_table_t;
+
+typedef struct fdt_entry_t{
+    fop_table_t* fop_table_ptr;
+    uint32_t inode;
+    uint32_t file_position;
+    uint32_t flags; 
+} fdt_entry_t;
+
 boot_block_t* boot_block_ptr;
 inodes_t* inodes_ptr;
 dentry_t* entry_ptr;
 uint8_t* data_block_ptr;
 
+fdt_entry_t fd_table[FD_TABLE_ENTRIES];
 
 // initialize the starts to dir entry, boot_block, and inodes. 
 void file_system_init(module_t* start);
