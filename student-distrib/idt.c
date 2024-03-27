@@ -3,6 +3,7 @@
 #include "lib.h"
 #include "idt_asm.h"
 #include "device_handlers.h"
+#include "syscall_asm.h"
 
 /* Commented out to avoid unused variable warning
 static char* exceptions[32] = 
@@ -100,6 +101,19 @@ void idt_initializer(){
     idt[0x21].dpl = 0;
     SET_IDT_ENTRY(idt[0x21], KEYBOARD_HANDLER);
 
+
+
+    // Set System call interrupt values
+    idt[0x80].present = 1;
+    idt[0x80].reserved0 = 0; 
+    idt[0x80].reserved1 = 1;
+    idt[0x80].reserved2 = 1;
+    idt[0x80].reserved3 = 0;
+    idt[0x80].reserved4 = 0;
+    idt[0x80].size = 1;
+    idt[0x80].seg_selector = KERNEL_CS;
+    idt[0x80].dpl = 0;
+    SET_IDT_ENTRY(idt[0x80], syscall_handler);
 
 }
 

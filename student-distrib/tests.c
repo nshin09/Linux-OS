@@ -326,6 +326,16 @@ int file_dne()
 	
 }
 /* Checkpoint 3 tests */
+
+int Basic_syscall_test()
+{
+	TEST_HEADER;
+
+	void (*addr)() = idt[0x80].offset_31_16 * 0x10000 + idt[0x80].offset_15_00;
+	addr();
+
+	return PASS;
+}
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
@@ -338,11 +348,12 @@ void launch_tests(){
 	// TEST_OUTPUT("paging range test", page_fault_test());
 	// TEST_OUTPUT("debug exception test", test_debug_error());
 	// TEST_OUTPUT("bounds exception test", bound_range_exception());
-	 TEST_OUTPUT("terminal test", terminal_test());
+	// TEST_OUTPUT("terminal test", terminal_test());
 	// TEST_OUTPUT("rtc_write_read test", rtc_write_read_test());
 	// TEST_OUTPUT("fs test", file_system_test());
 	// TEST_OUTPUT("large fs test", file_system_test_large());
 	// TEST_OUTPUT("list files", list_file_systems());
 	// TEST_OUTPUT("test file doesnt exist", file_dne());
+	TEST_OUTPUT("Basic syscalls", Basic_syscall_test());
 	// launch your tests here
 }

@@ -332,16 +332,22 @@ void keyboard_handler(){
     }
     else if(Scancode == 0x0E) //0x0E is the "backspace" scancode
     {
+        //Handle Backspace in buffer
         if(keyboard_buffer_index > 0)
         {
             keyboard_buffer_index--;
         }
+
+        //Handle Backspace on screen
         if (getScreenX() == 0 && textOverflow > 0){
             
             move_line_up();    
-            textOverflow--;
+            textOverflow -= 2; //-2 because putc(' ') adds one to textOverflow? Idk why or how
             putc(' ');
             move_line_up();
+
+            //Make sure textOverflow is non-negative
+            if(textOverflow < 0){ textOverflow = 0; }
         }
         else{
             decr_scrn_x();
