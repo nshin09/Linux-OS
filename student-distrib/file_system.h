@@ -30,7 +30,7 @@ typedef struct fop_table_t {
     int32_t (*open) (const uint8_t* filename);
     int32_t (*close)(int32_t fd);
     int32_t (*read)(int32_t fd, void* buf, int32_t nbytes);
-    int32_t (*write) (int32_t fd, const int32_t* buf, int32_t nbytes);
+    int32_t (*write) (int32_t fd, const void* buf, int32_t nbytes);
 } fop_table_t;
 
 typedef struct fdt_entry_t{
@@ -39,7 +39,7 @@ typedef struct fdt_entry_t{
     uint32_t file_position;
     uint32_t flags; 
 } fdt_entry_t;
-
+// 0 - rtc 1 -dir 2-file
 boot_block_t* boot_block_ptr;
 inodes_t* inodes_ptr;
 dentry_t* entry_ptr;

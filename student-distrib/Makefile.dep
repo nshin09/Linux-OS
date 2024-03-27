@@ -6,7 +6,8 @@ syscall_asm.o: syscall_asm.S
 x86_desc.o: x86_desc.S x86_desc.h types.h
 exception_handlers.o: exception_handlers.c exception_handlers.h types.h \
   lib.h
-file_system.o: file_system.c file_system.h types.h lib.h multiboot.h
+file_system.o: file_system.c file_system.h types.h lib.h multiboot.h \
+  rtc.h
 i8259.o: i8259.c i8259.h types.h lib.h
 idt.o: idt.c idt.h types.h x86_desc.h lib.h idt_asm.h device_handlers.h \
   rtc.h syscall_asm.h

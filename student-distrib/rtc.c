@@ -82,15 +82,13 @@ int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes) {
             buf - species the frequency that you want to write to
  * Return Value: void
  * Function: sets a different amount of ticks for the rtc. */
-int32_t rtc_write (int32_t fd, const int32_t* buf, int32_t nbytes) {
+int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes) {
 
-    if(*buf > 1024)
+    if(((uint32_t*)buf)[0] > 1024)
     {
-        rtc_rate = 1;
-        rtc_ticks = rtc_rate;
-        return 0;
+        return -1;
     }
-    rtc_rate = 1024 / (*buf); // 1024 / frequency;
+    rtc_rate = 1024 / ((uint32_t*)buf)[0]; // 1024 / frequency;
     rtc_ticks = rtc_rate;
     return 0;
 }

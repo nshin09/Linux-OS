@@ -1,4 +1,5 @@
 #include "file_system.h"
+#include "rtc.h"
 #include "lib.h"
 
 /* void file_system_init(module_t* start)
@@ -14,13 +15,15 @@ void file_system_init(module_t* start)
     int i;
     for(i=0; i<FD_TABLE_ENTRIES;i++){
         fd_table[i].fop_table_ptr = NULL;
-        fd_table[i].flags = 1;
+        fd_table[i].flags = 0;
         fd_table[i].file_position = 0;
         fd_table[i].inode = 0;
-    }
-    // if(i==0){
 
-    // }
+        if(i==0 || i==1){
+            fd_table[i].flags == 1; //0 and 1 idx occupied for stdin and stdout
+        }
+    }
+
 }
 
 /* int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length)
@@ -141,13 +144,46 @@ int32_t file_open(const uint8_t* filename)
 {
     int i;
     int canOpen = 0;
-    for(i=2;i<FD_TABLE_ENTRIES;i++){
-        if (fd_table[i].flags == 1){
+    dentry_t temp_dentry;
+    int does_exist = read_dentry_by_name(filename, &temp_dentry);
+    if(does_exist ==-1){
+        return -1;
+    }
 
+    for(i=0;i<FD_TABLE_ENTRIES;i++){
+        if (fd_table[i].flags == 0){
+            canOpen = 1;
+            //populate data
+            fd_table[i].flags = 1;
+            fd_table[i].file_position = 0;
+            fd_table[i].inode = temp_dentry.node_num;
+
+            int file_type = temp_dentry.file_type;
+            if(file_type == 0){
+                fd_table[i].fop_table_ptr->open = rtc_open;
+                fd_table[i].fop_table_ptr->close = rtc_close;
+                fd_table[i].fop_table_ptr->read = rtc_read;
+                fd_table[i].fop_table_ptr->write = rtc_write;
+            } 
+            else if(file_type == 1){
+                fd_table[i].fop_table_ptr->open = directory_open;
+                fd_table[i].fop_table_ptr->close = directory_close;
+                fd_table[i].fop_table_ptr->read = directory_read;
+                fd_table[i].fop_table_ptr->write = directory_write;
+            } 
+            else if(file_type == 2){
+                fd_table[i].fop_table_ptr->open = file_open;
+                fd_table[i].fop_table_ptr->close = file_close;
+                fd_table[i].fop_table_ptr->read = file_read;
+                fd_table[i].fop_table_ptr->write = file_write;
+            }            
         }
     }
-    dentry_t d;
-    return read_dentry_by_name(filename, &d);
+    if(canOpen == 0){
+        return -1;
+    }
+    return 0;
+
 }
 int32_t directory_open(const uint8_t* filename)
 {

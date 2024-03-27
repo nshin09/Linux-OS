@@ -11,7 +11,7 @@ int32_t terminal_close(int32_t fd){
     return 0;
 }
 
-int32_t terminal_read(int32_t fd, char* buf, int32_t nbytes){
+int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     int i = 0;
     // printf("in terminal read");
     // printf("\n");
@@ -32,23 +32,11 @@ int32_t terminal_read(int32_t fd, char* buf, int32_t nbytes){
 }
 
 
-int32_t terminal_write(int32_t fd, const char* buf, int32_t nbytes)
+int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes)
 {
     int i = 0;
-    // for(i =0; i < nbytes; i++){
-    //     putc(((char*)buf)[i]); 
-    //     // printf("%c", ((char*)buf)[i]);
 
-    // }
-    // printf("in terminal write");
-    // printf("\n");
-
-    // printf("terminal buffer: ");
-    if(nbytes > 128)
-    {
-        nbytes = 128;
-    }
-    while(i < nbytes && ((char*)buf)[i] != '\n')
+    while(i < nbytes)
     {
         putc(((char*)buf)[i]);
         i++;
