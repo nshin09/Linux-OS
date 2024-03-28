@@ -1,5 +1,6 @@
 #include "syscall.h"
 #include "lib.h"
+#include "file_system.h"
 
 
 int32_t halt (uint8_t status){
@@ -50,7 +51,61 @@ int32_t sigreturn (void){
 
 int32_t execute (const uint8_t* command){
     //First, Check if given filename is an executable filetype
+    int spaces[32]={0};
+    spaces[0] = 0;
+
+    int num_spaces = 0;
+    int i=0;
+
+    for(i=0; i < command[i]!='\0'; i++){
+        if(command[i] == ' '){
+            spaces[num_spaces+1] = i;
+            num_spaces++;
+        }
+    }
+    printf("%d, %d", num_spaces+1, strlen((char*)command));
     
+    spaces[num_spaces+1] = strlen((char*)command);
+
+    printf("\n");
+    //Print Args to check splitting at ' '
+    int j;
+    for(j=0; j < num_spaces+1; j++){
+        for(i=spaces[j]; i < spaces[j+1]; i++){
+            putc(command[i]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+
+    //Check if filename exists
+    dentry_t temp_dentry;
+    //copy over the filename
+
+    char filename[32] = {'\0'}; //spaces[1]]; 32 is max num of chars
+
+    for(i=0; i<spaces[1]; i++){
+        filename[i] = command[i];
+    }
+
+    for(i=0; i<spaces[1]; i++){
+        putc(filename[i]);
+    }
+
+    printf(" strlen before: %d", strlen(filename));
+    int res = read_dentry_by_name((uint8_t*)filename, &temp_dentry);
+    if(res == -1){
+        printf("\nFile Does Not Exist ");
+        return -1;
+    }
+    printf("\nfile exists ");
+    
+    //Check if the file is an executable
+
+    //Read first 4 bytes
+
+    //Check if first 4 bytes are that of an executable
+
     return 0;
 }
 void syscall_handler_c(int call_num, int arg1, int arg2, int arg3){

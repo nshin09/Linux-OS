@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+/*
 typedef struct __attribute__((packed)) page_table_t {
     uint32_t present        : 1;
     uint32_t read_write     : 1;
@@ -16,14 +17,13 @@ typedef struct __attribute__((packed)) page_table_t {
     uint8_t  available      : 3;
     uint32_t addr           : 20;
 } page_table_t;
-
-
+*/
 
 extern void syscall_handler_c(int call_num, int arg1, int arg2, int arg3);
 
 //System calls needed for cp3
 int32_t halt(uint8_t status);
-int32_t execute(const uint8_t* command);
+extern int32_t execute(const uint8_t* command);
 int32_t read(int32_t fd, void* buf, int32_t nbytes);
 int32_t write(int32_t fd, const void* buf, int32_t nbytes);
 int32_t open(const uint8_t* filename);

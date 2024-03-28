@@ -79,7 +79,14 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
  * Function: Looks for the specified file name within a dentry*/
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) //dentry->node_num
 {
-    int length = strlen((int8_t*)fname);
+    // printf("\nstrlen after: %d", strlen(fname));
+  
+    // int length = strlen((int8_t*)fname);
+    int length = 0;
+    while (length<32 && fname[length] != '\0'){
+        length++;
+    }
+
     if(length > 32)
     {
         length = 32;

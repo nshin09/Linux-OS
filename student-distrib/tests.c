@@ -6,6 +6,7 @@
 #include "terminal.h"
 #include "keyboard.h"
 #include "rtc.h"
+#include "syscall.h"
 #include "file_system.h"
 #define PASS 1
 #define FAIL 0
@@ -331,9 +332,20 @@ int Basic_syscall_test()
 {
 	TEST_HEADER;
 
-	void (*addr)() = idt[0x80].offset_31_16 * 0x10000 + idt[0x80].offset_15_00;
-	addr();
+	//void (*addr)() = idt[0x80].offset_31_16 * 0x10000 + idt[0x80].offset_15_00;
+	//addr();
 
+	//uint8_t Filename[14] = {'r','u','n',' ','e','c','e','3','9','1','.','t','x','t'};
+	//execute(Filename);
+	// int i = 0;
+	char Filename2[5] = {'g','r','e','p','\0'};
+	// printf("\n");
+    // for(i = 0; i < strlen(Filename2); i ++){
+    //     printf("%c", Filename2[i]);
+    // }
+    // printf("\n");
+
+	execute((uint8_t*)Filename2);
 	return PASS;
 }
 /* Checkpoint 4 tests */
@@ -349,11 +361,11 @@ void launch_tests(){
 	// TEST_OUTPUT("debug exception test", test_debug_error());
 	// TEST_OUTPUT("bounds exception test", bound_range_exception());
 	// TEST_OUTPUT("terminal test", terminal_test());
-	TEST_OUTPUT("rtc_write_read test", rtc_write_read_test());
+	// TEST_OUTPUT("rtc_write_read test", rtc_write_read_test());
 	// TEST_OUTPUT("fs test", file_system_test());
 	// TEST_OUTPUT("large fs test", file_system_test_large());
 	// TEST_OUTPUT("list files", list_file_systems());
 	// TEST_OUTPUT("test file doesnt exist", file_dne());
-	// TEST_OUTPUT("Basic syscalls", Basic_syscall_test());
+	TEST_OUTPUT("Basic syscalls", Basic_syscall_test());
 	// launch your tests here
 }
