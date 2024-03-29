@@ -338,7 +338,7 @@ int Basic_syscall_test()
 	//uint8_t Filename[14] = {'r','u','n',' ','e','c','e','3','9','1','.','t','x','t'};
 	//execute(Filename);
 	// int i = 0;
-	char Filename2[5] = {'g','r','e','p','\0'};
+	char Filename2[4] = {'c','a','t','\0'};
 	// printf("\n");
     // for(i = 0; i < strlen(Filename2); i ++){
     //     printf("%c", Filename2[i]);
@@ -346,6 +346,28 @@ int Basic_syscall_test()
     // printf("\n");
 
 	execute((uint8_t*)Filename2);
+	return PASS;
+}
+
+int Get_args_test(){
+	TEST_HEADER;
+
+	char Filename2[13] = {'c','a','t',' ','-','r',' ','-','-','A','A','\0'};
+	execute((uint8_t*)Filename2);
+
+	char arg_buf[13] = {'\0'};
+	getargs((uint8_t*)arg_buf, 13);
+
+	int i;
+	printf("\n->");
+	for(i = 0; i < 8; i++){
+		putc(arg_buf[i]);
+		if(arg_buf[i] != Filename2[3+i]){
+			return FAIL;
+		}
+	}
+	printf("<-\n");
+
 	return PASS;
 }
 /* Checkpoint 4 tests */
@@ -366,6 +388,7 @@ void launch_tests(){
 	// TEST_OUTPUT("large fs test", file_system_test_large());
 	// TEST_OUTPUT("list files", list_file_systems());
 	// TEST_OUTPUT("test file doesnt exist", file_dne());
-	TEST_OUTPUT("Basic syscalls", Basic_syscall_test());
+	// TEST_OUTPUT("Basic syscalls", Basic_syscall_test());
+	TEST_OUTPUT("GetArgs", Get_args_test());
 	// launch your tests here
 }
