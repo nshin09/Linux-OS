@@ -1,27 +1,19 @@
 #include "syscall.h"
 #include "lib.h"
 #include "file_system.h"
+#include "paging.h"
 
 int PID = 0;
 
-int max_PCB = 6;
-int PCB_size = 0x8000;
-int curr_mem = 0x80000000;
-
 uint8_t args[128] = {'\0'};
 
-// void Create_PCB (int PID){
-//     void* memory_ptr = (void*)(curr_mem - (PID+1)*PCB_size);
+PCB_t* Get_PCB_ptr (int local_PID){
+    return (PCB_t*)(curr_mem - (local_PID+1)*PCB_size);
+}
 
-//     memset(memory_ptr, 0, PCB_size);
-
-//     PCB_t temp_PCB;
-//     temp_PCB.Active = 1;
-//     temp_PCB.PID = PID;
-//     temp_PCB.Parent_PID = 0; //Always true for 3.3, not generally
-
-//     memcpy(memory_ptr, (const void*)temp_PCB, 148);
-// }
+void Flush_TLB(unsigned long addr){
+    asm volatile("invlpg (%0)" :: "r" (addr) : "memory");
+}
 
 int32_t halt (uint8_t status){
     return 0;
@@ -93,18 +85,19 @@ int32_t execute (const uint8_t* command){
     
     spaces[num_spaces+1] = strlen((char*)command);
 
-    printf("\n");
-    //Print Args to check splitting at ' '
-    int j;
-    for(j=0; j < num_spaces+1; j++){
-        for(i=spaces[j]; i < spaces[j+1]; i++){
-            putc(command[i]);
-        }
-        printf("\n");
-    }
-    printf("\n");
+    // printf("\n");
+    // //Print Args to check splitting at ' '
+    // int j;
+    // for(j=0; j < num_spaces+1; j++){
+    //     for(i=spaces[j]; i < spaces[j+1]; i++){
+    //         putc(command[i]);
+    //     }
+    //     printf("\n");
+    // }
+    // printf("\n");
 
     //Save args for the getargs call
+    int j;
     for(j=spaces[1]; command[j] != '\0'; j++){
         args[j-spaces[1]] = command[j];
     }
@@ -119,9 +112,9 @@ int32_t execute (const uint8_t* command){
         filename[i] = command[i];
     }
 
-    for(i=0; i<spaces[1]; i++){
-        putc(filename[i]);
-    }
+    // for(i=0; i<spaces[1]; i++){
+    //     putc(filename[i]);
+    // }
 
     printf(" strlen before: %d", strlen(filename));
     //Call read_dentry and check if it can find the function name
@@ -151,17 +144,22 @@ int32_t execute (const uint8_t* command){
     printf("Is an executable\n");
 
     //Setup Paging
-
-
     //Check if we reached max PCBs
-    // if(PID >= 5){
-    //     printf("Too many PCBs");
-    //     return -1;
-    // }
-    // PID++;
-    // printf("Plenty of PCBs\n");
+    if(PID >= 5){
+        printf("Too many PCBs");
+        return -1;
+    }
+    printf("Plenty of PCBs\n");
 
-    //Map virtual memory 
+    //Map virtual memory
+    //Find first non-present page directory
+    page_directory[32].present = 1;
+    page_directory[32].read_write = 1;
+    page_directory[32].addr = (curr_mem + (PID)*0x400000);
+    page_directory[32].user_supervisor = 1;
+    page_directory[32].page_size = 1;
+
+    Flush_TLB(page_directory[32].addr);
 
     //Load program from file system into memory directly
 

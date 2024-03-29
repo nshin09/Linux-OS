@@ -5,16 +5,20 @@
 #include "file_system.h"
 
 
-typedef struct __attribute__((packed)) PCB_t {
+typedef struct  PCB_t {
     uint32_t Active : 1;
     uint32_t PID;
     uint32_t Parent_PID;
-    uint32_t EIP;
     uint32_t EBP;
     fdt_entry_t FDT[8];
+    uint32_t syscall_args[4];
 } PCB_t;
 
 extern void syscall_handler_c(int call_num, int arg1, int arg2, int arg3);
+
+#define max_PCB  6
+#define PCB_size  8192     //8 kilabytes
+#define curr_mem  0x800000 //8 Megabyes
 
 //System calls needed for cp3
 int32_t halt(uint8_t status);

@@ -44,18 +44,7 @@
         page_table[i].user_supervisor = 0;
         page_table[i].read_write = 1;
         page_table[i].addr = i;
-    
-        // page_VGA[i].available = 0; we do not use this vga table as none of the values are present. 
-        // page_VGA[i].global_page = 0;
-        // page_VGA[i].PAT = 0;
-        // page_VGA[i].accessed = 0;
-        // page_VGA[i].dirty = 0;
-        // page_VGA[i].cache_disabled = 0;
-        // page_VGA[i].write_through = 0;
-        // page_VGA[i].user_supervisor = 0;
-        // page_VGA[i].read_write = 1;
-        // page_VGA[i].present = 0; 
-        // page_VGA[i].addr = i; 
+
         
     }
 
