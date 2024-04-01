@@ -14,6 +14,7 @@
 #include "keyboard.h"
 #include "paging.h"
 #include "file_system.h"
+#include "syscall.h"
 #define RUN_TESTS
 
 /* Macros. */
@@ -154,7 +155,7 @@ void entry(unsigned long magic, unsigned long addr) {
     initialize_keyboard();
     rtc_init();
     initPaging();
-    
+    initialize_fop();
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close

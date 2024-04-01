@@ -2,6 +2,12 @@
 
 .text
 
+.globl flush_tlb
+flush_tlb:
+    movl %cr3, %eax
+    movl %eax, %cr3
+    ret
+
 .globl syscall_handler
 syscall_handler:
     pushal
@@ -38,3 +44,15 @@ FAIL:
     popfl
     popal
     ret
+
+
+.globl Save_context
+Save_context:
+    movl 8(%ebp), %eax
+    pushl $0x002B 
+    pushl %esp 
+    pushfl 
+    pushl $0x0010               
+    pushl %eax   
+
+    ret 

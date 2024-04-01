@@ -1,15 +1,50 @@
 #include "syscall.h"
+#include "syscall_asm.h"
 #include "lib.h"
 #include "file_system.h"
 #include "paging.h"
-
+#include "rtc.h"
+#include "terminal.h"
+#include "x86_desc.h"
 //Moved these variables to this file cause they weren't being seen properly
 const int CURR_MEM = 0x800000; //8 Megabyes
 const int MAX_FILE_VALUE = 40000;
 
 int PID = 0;
-
+int PID_ARRAY[6] = {0,0,0,0,0,0};
 uint8_t args[128] = {'\0'};
+void initialize_fop()
+{
+    null_fop.open = null_open;
+    null_fop.close = null_close;
+    null_fop.read = null_read;
+    null_fop.write = null_write; 
+
+    stdin_fop.open = terminal_open;
+    stdin_fop.close = terminal_close;
+    stdin_fop.read = terminal_read;
+    stdin_fop.write = null_write;
+
+    stdout_fop.open = terminal_open;
+    stdout_fop.close = terminal_close;
+    stdout_fop.read = null_read;
+    stdout_fop.write = terminal_write;
+
+    rtc_fop.open = rtc_open;
+    rtc_fop.close = rtc_close;
+    rtc_fop.read = rtc_read;
+    rtc_fop.write = rtc_write;
+
+    directory_fop.open = directory_open;
+    directory_fop.close = directory_close;
+    directory_fop.read = directory_read;
+    directory_fop.write = directory_write;
+
+    file_fop.open = file_open;
+    file_fop.close = file_close;
+    file_fop.read = file_read;
+    file_fop.write = file_write;
+}
 
 PCB_t* Get_PCB_ptr (int local_PID){
     return (PCB_t*)(CURR_MEM - (local_PID+1)*PCB_size);
@@ -89,17 +124,6 @@ int32_t execute (const uint8_t* command){
     
     spaces[num_spaces+1] = strlen((char*)command);
 
-    // printf("\n");
-    // //Print Args to check splitting at ' '
-    // int j;
-    // for(j=0; j < num_spaces+1; j++){
-    //     for(i=spaces[j]; i < spaces[j+1]; i++){
-    //         putc(command[i]);
-    //     }
-    //     printf("\n");
-    // }
-    // printf("\n");
-
     //Save args for the getargs call
     int j;
     for(j=spaces[1]; command[j] != '\0'; j++){
@@ -130,8 +154,8 @@ int32_t execute (const uint8_t* command){
     
     //Check if the file is an executable
     //Read first 4 bytes
-    unsigned char ELF_buf[4];
-    res = read_data(temp_dentry.node_num,0,(uint8_t*)ELF_buf,4);
+    unsigned char ELF_buf[28];
+    res = read_data(temp_dentry.node_num,0,(uint8_t*)ELF_buf,28);
     
     //4 magic numbers to verify if file is an executable
     unsigned char ELF_bits[4] = {127, 69, 76, 70};
@@ -152,9 +176,24 @@ int32_t execute (const uint8_t* command){
         printf("Too many PCBs");
         return -1;
     }
-    printf("Plenty of PCBs\n");
-
+    // printf("Plenty of PCBs\n");
+    int occupied = 1;
     //Map virtual memory
+    for(i = 0; i < 6; i++) // go through each pid
+    {
+        if(PID_ARRAY[i] == 0) // if PID is free. 
+        {
+            PID = i;
+            PID_ARRAY[i] = 1;
+            occupied = 0; // indicates that a pid was not busy.
+            break; 
+        }
+    }
+    if(occupied == 1) // if all pids are in use cancel execute. 
+    {
+        return -1;
+    }
+
     int pd_idx = 32; //The page directory index of virtual address 128MB
     page_directory[pd_idx].present = 1;
     page_directory[pd_idx].read_write = 1;
@@ -162,7 +201,10 @@ int32_t execute (const uint8_t* command){
     page_directory[pd_idx].user_supervisor = 1;
     page_directory[pd_idx].page_size = 1;
 
-    Flush_TLB(page_directory[pd_idx].addr);
+    do {                                    \
+		asm volatile ("call flush_tlb"      \
+		);                                  \
+	} while (0);
 
     //Create new PCB
     PCB_t* PCB = Get_PCB_ptr(PID);
@@ -173,18 +215,39 @@ int32_t execute (const uint8_t* command){
     //Load program from file system into memory directly
     int file_size = (inodes_ptr + temp_dentry.node_num)->length;
 
-    unsigned char Full_buf[MAX_FILE_VALUE];
-    res = read_data(temp_dentry.node_num,0,(uint8_t*)Full_buf,file_size);
-
-    memcpy(page_directory[pd_idx].addr, 
-        Full_buf, 
-        file_size);
+    
+    res = read_data(temp_dentry.node_num,0,(uint8_t*)0x08048000,file_size); // 0x08048000 is start of program image. 
 
     //Increment PID
-    PID++;
+
+    for(i = 0; i < 8; i++)
+    {
+        PCB->FDT[i].fop_table_ptr = &null_fop;
+        PCB->FDT[i].inode = 0;
+        PCB->FDT[i].file_position = 0;
+        PCB->FDT[i].flags = 0; 
+    }
+    PCB->FDT[0].fop_table_ptr = &stdin_fop;
+    PCB->FDT[1].fop_table_ptr = &stdout_fop; 
+    PCB->FDT[0].flags = 1; 
+    PCB->FDT[1].flags = 1;
+    strncpy((int8_t*)PCB->syscall_args,(int8_t*)filename,32); // max character length
+
+
+    uint32_t EIP = ELF_buf[24] << 24 | ELF_buf[25] << 16 | ELF_buf[26] << 8 | ELF_buf[27];
 
     //Save current EBP
-    asm volatile("pushl %ebp");
+    Save_context(EIP);
+    // asm volatile ("                     \n\
+    //         pushl $0x002B               \n\
+    //         pushl %%esp                 \n\
+    //         pushfl                      \n\
+    //         pushl $0x0010               \n\
+    //         pushl %[eip_var]                  \n\
+    //         "
+    //         :
+    //         : [eip_var]"X"(EIP)
+    // );
 
     //Create Context switch (?)
 
@@ -232,4 +295,21 @@ void syscall_handler_c(int call_num, int arg1, int arg2, int arg3){
 
     printf("Sys call %d got %d\n", call_num, syscall_out);
     return;
+}
+
+int32_t null_read(int32_t fd, void* buf, int32_t nbytes)
+{
+    return -1;
+}
+int32_t null_write(int32_t fd, const void* buf, int32_t nbytes)
+{
+    return -1;
+}
+int32_t null_open(const uint8_t* filename)
+{
+    return -1;
+}
+int32_t null_close(int32_t fd)
+{
+    return -1;
 }

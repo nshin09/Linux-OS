@@ -11,17 +11,32 @@ typedef struct  PCB_t {
     uint32_t Parent_PID;
     uint32_t EBP;
     fdt_entry_t FDT[8];
-    uint32_t syscall_args[4];
+    uint8_t syscall_args[32];
 } PCB_t;
 
 extern void syscall_handler_c(int call_num, int arg1, int arg2, int arg3);
-
+extern void initialize_fop();
 #define max_PCB  6
 #define PCB_size  8192     //8 kilabytes
 // #define CURR_MEM  0x800000 //8 Megabyes
 // #define MAX_FILE_VALUE  40000
 
+// Null functions
+int32_t null_read(int32_t fd, void* buf, int32_t nbytes);
+int32_t null_write(int32_t fd, const void* buf, int32_t nbytes);
+int32_t null_open(const uint8_t* filename);
+int32_t null_close(int32_t fd);
+
+// fop tables
+fop_table_t null_fop;
+fop_table_t stdin_fop;
+fop_table_t stdout_fop;
+fop_table_t rtc_fop;
+fop_table_t directory_fop;
+fop_table_t file_fop;
+
 //System calls needed for cp3
+
 int32_t halt(uint8_t status);
 extern int32_t execute(const uint8_t* command);
 int32_t read(int32_t fd, void* buf, int32_t nbytes);
