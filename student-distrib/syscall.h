@@ -18,7 +18,8 @@ extern void syscall_handler_c(int call_num, int arg1, int arg2, int arg3);
 
 #define max_PCB  6
 #define PCB_size  8192     //8 kilabytes
-#define curr_mem  0x800000 //8 Megabyes
+// #define CURR_MEM  0x800000 //8 Megabyes
+// #define MAX_FILE_VALUE  40000
 
 //System calls needed for cp3
 int32_t halt(uint8_t status);

@@ -3,12 +3,16 @@
 #include "file_system.h"
 #include "paging.h"
 
+//Moved these variables to this file cause they weren't being seen properly
+const int CURR_MEM = 0x800000; //8 Megabyes
+const int MAX_FILE_VALUE = 40000;
+
 int PID = 0;
 
 uint8_t args[128] = {'\0'};
 
 PCB_t* Get_PCB_ptr (int local_PID){
-    return (PCB_t*)(curr_mem - (local_PID+1)*PCB_size);
+    return (PCB_t*)(CURR_MEM - (local_PID+1)*PCB_size);
 }
 
 void Flush_TLB(unsigned long addr){
@@ -116,7 +120,6 @@ int32_t execute (const uint8_t* command){
     //     putc(filename[i]);
     // }
 
-    printf(" strlen before: %d", strlen(filename));
     //Call read_dentry and check if it can find the function name
     int res = read_dentry_by_name((uint8_t*)filename, &temp_dentry);
     if(res == -1){
@@ -152,19 +155,38 @@ int32_t execute (const uint8_t* command){
     printf("Plenty of PCBs\n");
 
     //Map virtual memory
-    //Find first non-present page directory
-    page_directory[32].present = 1;
-    page_directory[32].read_write = 1;
-    page_directory[32].addr = (curr_mem + (PID)*0x400000);
-    page_directory[32].user_supervisor = 1;
-    page_directory[32].page_size = 1;
+    int pd_idx = 32; //The page directory index of virtual address 128MB
+    page_directory[pd_idx].present = 1;
+    page_directory[pd_idx].read_write = 1;
+    page_directory[pd_idx].addr = (CURR_MEM + (PID)*0x400000);
+    page_directory[pd_idx].user_supervisor = 1;
+    page_directory[pd_idx].page_size = 1;
 
-    Flush_TLB(page_directory[32].addr);
+    Flush_TLB(page_directory[pd_idx].addr);
+
+    //Create new PCB
+    PCB_t* PCB = Get_PCB_ptr(PID);
+    PCB->Active = 1;
+    PCB->PID = PID;
+    PCB->Parent_PID = 0; //True for 3.3 but not generally
 
     //Load program from file system into memory directly
+    int file_size = (inodes_ptr + temp_dentry.node_num)->length;
+
+    unsigned char Full_buf[MAX_FILE_VALUE];
+    res = read_data(temp_dentry.node_num,0,(uint8_t*)Full_buf,file_size);
+
+    memcpy(page_directory[pd_idx].addr, 
+        Full_buf, 
+        file_size);
+
+    //Increment PID
+    PID++;
 
     //Save current EBP
-    // asm volatile("pushl %ebp");
+    asm volatile("pushl %ebp");
+
+    //Create Context switch (?)
 
     return 0;
 }
