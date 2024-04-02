@@ -233,17 +233,19 @@ int32_t execute (const uint8_t* command){
     PCB->FDT[1].flags = 1;
     strncpy((int8_t*)PCB->syscall_args,(int8_t*)filename,32); // max character length
 
-
+    tss.ss0 = KERNEL_DS;
+    tss.esp0 = 0x800000 - (8192*PID);
     uint32_t EIP = ELF_buf[24] << 24 | ELF_buf[25] << 16 | ELF_buf[26] << 8 | ELF_buf[27];
-
+    uint32_t ESP = 0x8000000; // 128 MB start of user program? 
     //Save current EBP
-    Save_context(EIP);
-    // asm volatile ("                     \n\
-    //         pushl $0x002B               \n\
-    //         pushl %%esp                 \n\
-    //         pushfl                      \n\
-    //         pushl $0x0010               \n\
-    //         pushl %[eip_var]                  \n\
+    sti();
+    Save_context(ESP,EIP);
+    // asm volatile ("                     \n
+    //         pushl $0x002B               \n
+    //         pushl %%esp                 \n
+    //         pushfl                      \n
+    //         pushl $0x0010               \n
+    //         pushl %[eip_var]                  \n
     //         "
     //         :
     //         : [eip_var]"X"(EIP)

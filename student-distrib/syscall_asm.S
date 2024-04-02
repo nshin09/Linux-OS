@@ -48,11 +48,12 @@ FAIL:
 
 .globl Save_context
 Save_context:
-    movl 8(%ebp), %eax
+    movl 8(%esp), %eax
+    movl 4(%esp), %ebx
     pushl $0x002B 
-    pushl %esp 
+    pushl %ebx
     pushfl 
     pushl $0x0010               
     pushl %eax   
 
-    ret 
+    iret 

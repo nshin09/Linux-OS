@@ -3,6 +3,6 @@
 
 extern void syscall_handler();
 
-extern void Save_context(uint32_t EIP);
+extern void Save_context(uint32_t ESP, uint32_t EIP);
 
 #endif
