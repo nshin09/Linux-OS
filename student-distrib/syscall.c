@@ -61,18 +61,63 @@ int32_t halt (uint8_t status){
 int32_t read (int32_t fd, void* buf, int32_t nbytes){
     //Get File from File Descriptor Table?
     //file = fdt[fd]
-
+    // printf("read");
+    // printf("fd: %d     nbytes: %d", fd, nbytes);
+    // // printf("in read");
     return 0;
 }
 
 int32_t write (int32_t fd, const void* buf, int32_t nbytes){
-    //Get File from File Descriptor Table?
-    //file = fdt[fd]
-    printf("Got to the write syscall\n");
+    //Get File from File Descriptor Table
+    PCB_t* PCB = Get_PCB_ptr(PID);
+    fdt_entry_t file = PCB->FDT[fd];
+    //Call fop table's write
+    file.fop_table_ptr->write(fd, buf, nbytes);
+    
     return 0;
 }
 
 int32_t open (const uint8_t* filename){
+    //    int i;
+    // int canOpen = 0;
+    // dentry_t temp_dentry;
+    // int does_exist = read_dentry_by_name(filename, &temp_dentry);
+    // if(does_exist ==-1){
+    //     return -1;
+    // }
+    // PCB_t* pcb_pointer = Get_PCB_ptr(PID);
+    // for(i=0; i <FD_TABLE_ENTRIES;i++){
+    //     if (pcb_pointer->FDT[i].flags == 0){
+    //         canOpen = 1;
+    //         //populate data
+    //         pcb_pointer->FDT[i].flags = 1;
+    //         pcb_pointer->FDT[i].file_position = 0;
+    //         pcb_pointer->FDT[i].inode = temp_dentry.node_num;
+
+    //         int file_type = temp_dentry.file_type;
+    //         if(file_type == 0){
+    //             pcb_pointer->FDT[i].fop_table_ptr->open = rtc_open;
+    //             pcb_pointer->FDT[i].fop_table_ptr->close = rtc_close;
+    //             pcb_pointer->FDT[i].fop_table_ptr->read = rtc_read;
+    //             pcb_pointer->FDT[i].fop_table_ptr->write = rtc_write;
+    //         } 
+    //         else if(file_type == 1){
+    //             pcb_pointer->FDT[i].fop_table_ptr->open = directory_open;
+    //             pcb_pointer->FDT[i].fop_table_ptr->close = directory_close;
+    //             pcb_pointer->FDT[i].fop_table_ptr->read = directory_read;
+    //             pcb_pointer->FDT[i].fop_table_ptr->write = directory_write;
+    //         } 
+    //         else if(file_type == 2){
+    //             pcb_pointer->FDT[i].fop_table_ptr->open = file_open;
+    //             pcb_pointer->FDT[i].fop_table_ptr->close = file_close;
+    //             pcb_pointer->FDT[i].fop_table_ptr->read = file_read;
+    //             pcb_pointer->FDT[i].fop_table_ptr->write = file_write;
+    //         }            
+    //     }
+    // }
+    // if(canOpen == 0){
+    //     return -1;
+    // }
     return 0;
 }
 
@@ -147,10 +192,8 @@ int32_t execute (const uint8_t* command){
     //Call read_dentry and check if it can find the function name
     int res = read_dentry_by_name((uint8_t*)filename, &temp_dentry);
     if(res == -1){
-        printf("\nFile Does Not Exist ");
         return -1;
     }
-    printf("\nfile exists \n");
     
     //Check if the file is an executable
     //Read first 4 bytes
@@ -164,16 +207,13 @@ int32_t execute (const uint8_t* command){
     for(i=0; i<4; i++){
         printf("%d ", (int)ELF_buf[i]);
         if(ELF_buf[i] != ELF_bits[i]){
-            printf("NOT an executable");
             return -1;
         }
     }
-    printf("Is an executable\n");
 
     //Setup Paging
     //Check if we reached max PCBs
     if(PID >= 5){
-        printf("Too many PCBs");
         return -1;
     }
     // printf("Plenty of PCBs\n");
@@ -240,64 +280,11 @@ int32_t execute (const uint8_t* command){
     //Save current EBP
     // sti();
     Save_context(ESP,EIP);
-    // asm volatile ("                     \n
-    //         pushl $0x002B               \n
-    //         pushl %%esp                 \n
-    //         pushfl                      \n
-    //         pushl $0x0010               \n
-    //         pushl %[eip_var]                  \n
-    //         "
-    //         :
-    //         : [eip_var]"X"(EIP)
-    // );
-
-    //Create Context switch (?)
+ 
 
     return 0;
 }
-void syscall_handler_c(int call_num, int arg1, int arg2, int arg3){
-    printf("Got system call %d, gets args %d, %d, and %d\n", call_num, arg1, arg2, arg3);
 
-    //JUST FOR TESTING SET CALL_NUM
-    //call_num = 4;
-
-    int syscall_out;
-    switch(call_num) {
-        case 1: 
-            syscall_out = halt((uint8_t)arg1);
-            break;
-        case 2: 
-            syscall_out = execute((const uint8_t*)arg1);
-            break;
-        case 3: 
-            syscall_out = read((uint32_t)arg1, (void*)arg2, (int32_t)arg3);
-            break;
-        case 4: 
-            syscall_out = write((uint32_t)arg1, (const void*)arg2, (int32_t)arg3);
-            break;
-        case 5:
-            syscall_out = open((const uint8_t*)arg1);
-            break;
-        case 6:
-            syscall_out = close((uint32_t)arg1);
-            break;
-        case 7:
-            syscall_out = getargs((uint8_t*)arg1, (uint32_t)arg2);
-            break;
-        case 8:
-            syscall_out = vidmap((uint8_t**)arg1);
-            break;
-        case 9:
-            syscall_out = set_handler((int32_t)arg1, (void*)arg2);
-            break;
-        case 10:
-            syscall_out = sigreturn();
-            break;
-    }
-
-    printf("Sys call %d got %d\n", call_num, syscall_out);
-    return;
-}
 
 int32_t null_read(int32_t fd, void* buf, int32_t nbytes)
 {

@@ -14,7 +14,7 @@ typedef struct  PCB_t {
     uint8_t syscall_args[32];
 } PCB_t;
 
-extern void syscall_handler_c(int call_num, int arg1, int arg2, int arg3);
+// extern void syscall_handler_c(int call_num, int arg1, int arg2, int arg3);
 extern void initialize_fop();
 #define max_PCB  6
 #define PCB_size  8192     //8 kilabytes

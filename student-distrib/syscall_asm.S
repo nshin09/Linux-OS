@@ -10,15 +10,17 @@ flush_tlb:
 
 .globl syscall_handler
 syscall_handler:
-    ;pushal
-    ;pushfl
-
-    ; #Push args
+    pushl %ebp
+    pushl %edi
+    pushl %esi
     pushl %edx
     pushl %ecx
     pushl %ebx
+    #Callee setup
+
+  
     
-    ; #Check eax in valid bounds
+    #Check eax in valid bounds
     cmpl $1, %eax
     jl FAIL
     cmpl $10, %eax
@@ -26,42 +28,47 @@ syscall_handler:
 
     call *jmptable(,%eax,4)
 
-    ; #call syscall_handler_c
-    ; #Clear the stack
-    ; #addl $12, %esp
+    #Clear the stack
+    #addl $12, %esp
 
     popl %ebx
     popl %ecx
     popl %edx
-    ; #popfl
-    ; #popal
-    leave
-    ret
+    popl %esi
+    popl %edi
+    popl %ebp
+
+
+    iret
 
 FAIL:
     popl %ebx
     popl %ecx
     popl %edx
+    popl %esi
+    popl %edi
+    popl %ebp
+    movl $-1, %eax
     ; #popfl
     ; #popal
-    leave
-    ret
+    iret
 
 jmptable:
-    .long   syscall_handler_c, halt, execute, read
-    .long   write, open, close, getargs
-    .long   vidmap, set_handler, sigreturn 
+    .long   halt, halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn 
 
 
 
 .globl Save_context
 Save_context:
-    movl 8(%esp), %eax
-    movl 4(%esp), %ebx
+    pushl %eax
+    pushl %ebx 
+    movl 16(%esp), %eax
+    movl 12(%esp), %ebx
     pushl $0x002B 
     pushl %ebx
     pushfl 
     pushl $0x0023               
     pushl %eax   
-
+    movl 20(%esp), %ebx
+    movl 24(%esp), %eax
     iret 

@@ -82,7 +82,17 @@ void gen_protection_fault_handler(){
 
 void page_fault_handler(){
     printf("Page fault error \n");
+    int err_addr = 0;
+
+    asm volatile(
+        "movl %%cr2, %0 ;"
+        : "=r" (err_addr)
+        :
+        : "memory"
+    );
+    printf("%x", err_addr);
     while(1);
+    
 }
 
 void floating_point_handler(){

@@ -353,7 +353,7 @@ int Get_args_test(){
 	TEST_HEADER;
 
 	// char Filename2[13] = {'c','a','t',' ','-','r',' ','-','-','A','A','\0'};
-	execute((uint8_t*)("testprint"));
+	execute((uint8_t*)("shell"));
 	
 	// char arg_buf[13] = {'\0'};
 	// getargs((uint8_t*)arg_buf, 13);

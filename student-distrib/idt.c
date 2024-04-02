@@ -108,7 +108,7 @@ void idt_initializer(){
     idt[0x80].reserved0 = 0; 
     idt[0x80].reserved1 = 1;
     idt[0x80].reserved2 = 1;
-    idt[0x80].reserved3 = 0;
+    idt[0x80].reserved3 = 1;
     idt[0x80].reserved4 = 0;
     idt[0x80].size = 1;
     idt[0x80].seg_selector = KERNEL_CS;
