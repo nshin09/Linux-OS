@@ -10,8 +10,8 @@ flush_tlb:
 
 .globl syscall_handler
 syscall_handler:
-    pushal
-    pushfl
+    ;pushal
+    ;pushfl
 
     ; #Push args
     pushl %edx
@@ -23,27 +23,35 @@ syscall_handler:
     jl FAIL
     cmpl $10, %eax
     jg FAIL
-    pushl %eax
 
-    call syscall_handler_c
+    call *jmptable(,%eax,4)
+
+    ; #call syscall_handler_c
     ; #Clear the stack
-    addl $16, %esp
+    ; #addl $12, %esp
 
-    popl %eax
     popl %ebx
     popl %ecx
     popl %edx
-    popfl
-    popal
+    ; #popfl
+    ; #popal
+    leave
     ret
 
 FAIL:
     popl %ebx
     popl %ecx
     popl %edx
-    popfl
-    popal
+    ; #popfl
+    ; #popal
+    leave
     ret
+
+jmptable:
+    .long   syscall_handler_c, halt, execute, read
+    .long   write, open, close, getargs
+    .long   vidmap, set_handler, sigreturn 
+
 
 
 .globl Save_context
@@ -53,7 +61,7 @@ Save_context:
     pushl $0x002B 
     pushl %ebx
     pushfl 
-    pushl $0x0010               
+    pushl $0x0023               
     pushl %eax   
 
     iret 

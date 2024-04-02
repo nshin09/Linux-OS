@@ -68,7 +68,7 @@ int32_t read (int32_t fd, void* buf, int32_t nbytes){
 int32_t write (int32_t fd, const void* buf, int32_t nbytes){
     //Get File from File Descriptor Table?
     //file = fdt[fd]
-
+    printf("Got to the write syscall\n");
     return 0;
 }
 
@@ -235,10 +235,10 @@ int32_t execute (const uint8_t* command){
 
     tss.ss0 = KERNEL_DS;
     tss.esp0 = 0x800000 - (8192*PID);
-    uint32_t EIP = ELF_buf[24] << 24 | ELF_buf[25] << 16 | ELF_buf[26] << 8 | ELF_buf[27];
-    uint32_t ESP = 0x8000000; // 128 MB start of user program? 
+    uint32_t EIP = ELF_buf[27] << 24 | ELF_buf[26] << 16 | ELF_buf[25] << 8 | ELF_buf[24];
+    uint32_t ESP = 0x8400000 - 4; // 128 MB start of user program? 
     //Save current EBP
-    sti();
+    // sti();
     Save_context(ESP,EIP);
     // asm volatile ("                     \n
     //         pushl $0x002B               \n
