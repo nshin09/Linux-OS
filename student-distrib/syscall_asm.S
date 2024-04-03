@@ -72,3 +72,17 @@ Save_context:
     movl 20(%esp), %ebx
     movl 24(%esp), %eax
     iret 
+
+.globl Get_EBP
+Get_EBP:
+    movl %ebp, %eax
+    ret
+
+# Sets EBP and ESP to the passed value correctly.
+# ret then gets messed up since the new ESP doesn't have 
+# the right EIP value on it's stack.
+.globl Set_EBP_ESP
+Set_EBP_ESP:
+    movl 4(%esp), %ebp
+    movl %ebp, %esp
+    ret 

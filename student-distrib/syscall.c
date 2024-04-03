@@ -55,6 +55,10 @@ void Flush_TLB(unsigned long addr){
 }
 
 int32_t halt (uint8_t status){
+    //Get PCB
+    PCB_t* PCB = Get_PCB_ptr(PID);
+    //Set EBP and ESP to value saved in PCB
+    Set_EBP_ESP(PCB->EBP);
     return 0;
 }
 
@@ -278,6 +282,7 @@ int32_t execute (const uint8_t* command){
     uint32_t EIP = ELF_buf[27] << 24 | ELF_buf[26] << 16 | ELF_buf[25] << 8 | ELF_buf[24];
     uint32_t ESP = 0x8400000 - 4; // 128 MB start of user program? 
     //Save current EBP
+    PCB->EBP = Get_EBP();
     // sti();
     Save_context(ESP,EIP);
  
