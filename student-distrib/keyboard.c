@@ -336,7 +336,7 @@ void keyboard_handler(){
         gotNewLine = 1;
 
     }
-    else if(Scancode == 0x0E) //0x0E is the "backspace" scancode
+    else if(Scancode == 0x0E && keyboard_buffer_index > 0) //0x0E is the "backspace" scancode
     {
         //Handle Backspace in buffer
         if(keyboard_buffer_index > 0)

@@ -21,7 +21,7 @@ extern void initialize_fop();
 #define PCB_size  8192     //8 kilabytes
 // #define CURR_MEM  0x800000 //8 Megabyes
 // #define MAX_FILE_VALUE  40000
-
+PCB_t* Get_PCB_ptr (int local_PID);
 // Null functions
 int32_t null_read(int32_t fd, void* buf, int32_t nbytes);
 int32_t null_write(int32_t fd, const void* buf, int32_t nbytes);
@@ -35,6 +35,7 @@ fop_table_t stdout_fop;
 fop_table_t rtc_fop;
 fop_table_t directory_fop;
 fop_table_t file_fop;
+
 
 //System calls needed for cp3
 

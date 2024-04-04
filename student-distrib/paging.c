@@ -83,14 +83,14 @@
     // //set the entry in the page_directory
     // page_directory[0].addr = ((unsigned int)first_page_table) | 3;
 
-    printf("  Enabling paging-");
+    // printf("  Enabling paging-");
     // ENABLE PAGING
     // Set CR3 to the base register
     set_PDBR((unsigned int*)page_directory);
     // Enable paging in CR0
     enable_paging();
 
-    printf("-Paging is enabled  \n");
+    // printf("-Paging is enabled  \n");
 
     // Set up TLB ??
     // Set up MMU ??

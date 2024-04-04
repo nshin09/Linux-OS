@@ -20,7 +20,7 @@ void rtc_init()
     outb(prev | 0x40, 0x71);	// write the previous value ORed with 0x40. This turns on bit 6 of register B
     // sti();
     enable_irq(0x08); // this command enables the irq_8 that was just initialized
-    rtc_rate = 32; // default frequency 1024/1024;
+    rtc_rate = 1; // default frequency 1024/1024;
     rtc_ticks = rtc_rate;
 }
 /* void: rtc_handler(void)

@@ -9,8 +9,8 @@
 //Moved these variables to this file cause they weren't being seen properly
 const int CURR_MEM = 0x800000; //8 Megabyes
 const int MAX_FILE_VALUE = 40000;
-
 int PID = 0;
+
 int PID_ARRAY[6] = {0,0,0,0,0,0};
 uint8_t args[128] = {'\0'};
 void initialize_fop()
@@ -47,6 +47,10 @@ void initialize_fop()
 }
 
 PCB_t* Get_PCB_ptr (int local_PID){
+    if(local_PID == -1) // this is used for file system
+    {
+        return (PCB_t*)(CURR_MEM - (PID+1)*PCB_size);
+    }
     return (PCB_t*)(CURR_MEM - (local_PID+1)*PCB_size);
 }
 
@@ -55,7 +59,7 @@ void Flush_TLB(unsigned long addr){
 }
 
 int32_t halt (uint8_t status){
-    printf("In halt syscall");
+    // printf("\nIn halt syscall");
     // //Get PCB
     // PCB_t* PCB = Get_PCB_ptr(PID);
     // //Set EBP and ESP to value saved 
@@ -97,9 +101,9 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
 int32_t open (const uint8_t* filename){
     //get current pcb
     // printf("starting open\n");
-    // if(strlen(filename) > 32){
-    //     return -1
-    // }
+    if(strlen((int8_t*)filename) <= 0 || strlen((int8_t*)filename) > 32){
+        return -1;
+    }
     int canOpen = 0;
     dentry_t temp_dentry;
     //check if filename exists
@@ -141,7 +145,7 @@ int32_t open (const uint8_t* filename){
         return -1;
     }
     // printf("got through open\n");
-    return 0;
+    return i;
 }
 
 int32_t close (int32_t fd){

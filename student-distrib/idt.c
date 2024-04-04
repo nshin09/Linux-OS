@@ -87,7 +87,7 @@ void idt_initializer(){
     idt[0x28].size = 1;
     idt[0x28].seg_selector = KERNEL_CS;
     idt[0x28].dpl = 0; // 0x28 represents the RTC port described in the IDT 
-    printf("before setting idt entry \n");
+    // printf("before setting idt entry \n");
     SET_IDT_ENTRY(idt[0x28], RTC_HANDLER);
     
     idt[0x21].present = 1;

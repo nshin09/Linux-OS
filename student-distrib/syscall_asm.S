@@ -14,9 +14,9 @@ registers:
     .long 0,0,0
 
 syscall_handler:
-    #pushl %ebp
-    #pushl %edi
-    #pushl %esi
+    # pushl %ebp
+    # pushl %edi
+    # pushl %esi
     movl %ebp, registers
     movl %edi, registers+4
     movl %esi, registers+8
@@ -48,9 +48,9 @@ syscall_handler:
     movl registers,%ebp
     movl  registers+4,%edi
     movl  registers+8,%esi
-    #popl %esi
-   # popl %edi
-    #popl %ebp
+    # popl %esi
+    # popl %edi
+    # popl %ebp
 
 
     iret

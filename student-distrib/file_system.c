@@ -1,6 +1,7 @@
 #include "file_system.h"
 #include "rtc.h"
 #include "lib.h"
+#include "syscall.h"
 
 /* void file_system_init(module_t* start)
  * Inputs: start- the starting address specified in kernel
@@ -20,7 +21,7 @@ void file_system_init(module_t* start)
         fd_table[i].inode = 0;
 
         if(i==0 || i==1){
-            fd_table[i].flags == 1; //0 and 1 idx occupied for stdin and stdout
+            fd_table[i].flags = 1; //0 and 1 idx occupied for stdin and stdout
         }
     }
 
@@ -134,13 +135,41 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
 //nothing for cp2, directly using helper
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes)
 {
-    
+    if (fd<0 || fd>MAX_FD_ENTRIES){
+        return -1;
+    }
+    PCB_t* PCB = Get_PCB_ptr(-1); // -1 means we just want to get the current PID value. 
+    int ret = read_data(PCB->FDT[fd].inode, PCB->FDT[fd].file_position, buf, nbytes);
+    if(ret == -1)
+    {
+        return -1;
+    }
     return 0;
 }
 
 int32_t directory_read(int32_t fd, void* buf, int32_t nbytes)
 {
-    return 0;
+    int i;
+    if (fd<0 || fd>MAX_FD_ENTRIES){
+        return -1;
+    }
+    PCB_t* PCB = Get_PCB_ptr(-1); // -1 means we just want to get the current PID value. 
+    dentry_t temp_dentry;
+    int read_by_idx = read_dentry_by_index(PCB->FDT[fd].file_position, &temp_dentry);
+    if (read_by_idx == -1){
+        return -1;
+    }
+    int length = strlen((int8_t*)temp_dentry.file_name);
+    for(i = 0; i < 32 && i < length; i++)
+    {
+        ((uint8_t*)buf)[i] =  temp_dentry.file_name[i];
+    }
+    // strncpy((int8_t*)buf, (int8_t*)temp_dentry.file_name, sizeof(temp_dentry.file_name));
+    PCB->FDT[fd].file_position++;
+    if (length>32){
+        length = 32;
+    }
+    return length;
 }
 
 /* int32_t file_open(const uint8_t* filename)
@@ -149,46 +178,6 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes)
  * Function: Opens a specified file*/
 int32_t file_open(const uint8_t* filename)
 {
-    // int i;
-    // int canOpen = 0;
-    // dentry_t temp_dentry;
-    // int does_exist = read_dentry_by_name(filename, &temp_dentry);
-    // if(does_exist ==-1){
-    //     return -1;
-    // }
-
-    // for(i=0;i<FD_TABLE_ENTRIES;i++){
-    //     if (fd_table[i].flags == 0){
-    //         canOpen = 1;
-    //         //populate data
-    //         fd_table[i].flags = 1;
-    //         fd_table[i].file_position = 0;
-    //         fd_table[i].inode = temp_dentry.node_num;
-
-    //         int file_type = temp_dentry.file_type;
-    //         if(file_type == 0){
-    //             fd_table[i].fop_table_ptr->open = rtc_open;
-    //             fd_table[i].fop_table_ptr->close = rtc_close;
-    //             fd_table[i].fop_table_ptr->read = rtc_read;
-    //             fd_table[i].fop_table_ptr->write = rtc_write;
-    //         } 
-    //         else if(file_type == 1){
-    //             fd_table[i].fop_table_ptr->open = directory_open;
-    //             fd_table[i].fop_table_ptr->close = directory_close;
-    //             fd_table[i].fop_table_ptr->read = directory_read;
-    //             fd_table[i].fop_table_ptr->write = directory_write;
-    //         } 
-    //         else if(file_type == 2){
-    //             fd_table[i].fop_table_ptr->open = file_open;
-    //             fd_table[i].fop_table_ptr->close = file_close;
-    //             fd_table[i].fop_table_ptr->read = file_read;
-    //             fd_table[i].fop_table_ptr->write = file_write;
-    //         }            
-    //     }
-    // }
-    // if(canOpen == 0){
-    //     return -1;
-    // }
     return 0;
 
 }
