@@ -18,6 +18,7 @@ void initialize_keyboard(){
     ctrl = 0;
     alt = 0;
     textOverflow = 0;
+    gotNewLine = 0;
    
 }
 
@@ -328,6 +329,7 @@ void keyboard_handler(){
         // terminal_write(0, terminal_buf, keyboard_buffer_index);
         keyboard_buffer_index = 0;
         textOverflow = 0;
+        gotNewLine = 1;
 
     }
     else if(Scancode == 0x0E) //0x0E is the "backspace" scancode

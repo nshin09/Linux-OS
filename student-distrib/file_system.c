@@ -101,10 +101,10 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) //dentry->no
         {
             entry_length = 32;
         }
-         match = strncmp((int8_t*)fname,(int8_t*)entry_ptr[i].file_name,32); // max file name is 32 bytes
+         match = strncmp((int8_t*)fname,(int8_t*)entry_ptr[i].file_name,length); // max file name is 32 bytes
         if(length == entry_length && match == 0)
         {
-            strncpy((int8_t*)dentry->file_name,(int8_t*)entry_ptr[i].file_name,32); // copy name, node number, and file type to the dentry parameter. 
+            strncpy((int8_t*)dentry->file_name,(int8_t*)entry_ptr[i].file_name,length); // copy name, node number, and file type to the dentry parameter. 
             dentry->node_num = entry_ptr[i].node_num;
             dentry->file_type = entry_ptr[i].file_type;
             return 0;
@@ -150,45 +150,45 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes)
 int32_t file_open(const uint8_t* filename)
 {
     int i;
-    int canOpen = 0;
-    dentry_t temp_dentry;
-    int does_exist = read_dentry_by_name(filename, &temp_dentry);
-    if(does_exist ==-1){
-        return -1;
-    }
+    // int canOpen = 0;
+    // dentry_t temp_dentry;
+    // int does_exist = read_dentry_by_name(filename, &temp_dentry);
+    // if(does_exist ==-1){
+    //     return -1;
+    // }
 
-    for(i=0;i<FD_TABLE_ENTRIES;i++){
-        if (fd_table[i].flags == 0){
-            canOpen = 1;
-            //populate data
-            fd_table[i].flags = 1;
-            fd_table[i].file_position = 0;
-            fd_table[i].inode = temp_dentry.node_num;
+    // for(i=0;i<FD_TABLE_ENTRIES;i++){
+    //     if (fd_table[i].flags == 0){
+    //         canOpen = 1;
+    //         //populate data
+    //         fd_table[i].flags = 1;
+    //         fd_table[i].file_position = 0;
+    //         fd_table[i].inode = temp_dentry.node_num;
 
-            int file_type = temp_dentry.file_type;
-            if(file_type == 0){
-                fd_table[i].fop_table_ptr->open = rtc_open;
-                fd_table[i].fop_table_ptr->close = rtc_close;
-                fd_table[i].fop_table_ptr->read = rtc_read;
-                fd_table[i].fop_table_ptr->write = rtc_write;
-            } 
-            else if(file_type == 1){
-                fd_table[i].fop_table_ptr->open = directory_open;
-                fd_table[i].fop_table_ptr->close = directory_close;
-                fd_table[i].fop_table_ptr->read = directory_read;
-                fd_table[i].fop_table_ptr->write = directory_write;
-            } 
-            else if(file_type == 2){
-                fd_table[i].fop_table_ptr->open = file_open;
-                fd_table[i].fop_table_ptr->close = file_close;
-                fd_table[i].fop_table_ptr->read = file_read;
-                fd_table[i].fop_table_ptr->write = file_write;
-            }            
-        }
-    }
-    if(canOpen == 0){
-        return -1;
-    }
+    //         int file_type = temp_dentry.file_type;
+    //         if(file_type == 0){
+    //             fd_table[i].fop_table_ptr->open = rtc_open;
+    //             fd_table[i].fop_table_ptr->close = rtc_close;
+    //             fd_table[i].fop_table_ptr->read = rtc_read;
+    //             fd_table[i].fop_table_ptr->write = rtc_write;
+    //         } 
+    //         else if(file_type == 1){
+    //             fd_table[i].fop_table_ptr->open = directory_open;
+    //             fd_table[i].fop_table_ptr->close = directory_close;
+    //             fd_table[i].fop_table_ptr->read = directory_read;
+    //             fd_table[i].fop_table_ptr->write = directory_write;
+    //         } 
+    //         else if(file_type == 2){
+    //             fd_table[i].fop_table_ptr->open = file_open;
+    //             fd_table[i].fop_table_ptr->close = file_close;
+    //             fd_table[i].fop_table_ptr->read = file_read;
+    //             fd_table[i].fop_table_ptr->write = file_write;
+    //         }            
+    //     }
+    // }
+    // if(canOpen == 0){
+    //     return -1;
+    // }
     return 0;
 
 }

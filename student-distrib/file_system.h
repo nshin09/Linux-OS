@@ -39,7 +39,7 @@ typedef struct fdt_entry_t{
     uint32_t file_position;
     uint32_t flags; 
 } fdt_entry_t;
-// 0 - rtc 1 -dir 2-file
+
 boot_block_t* boot_block_ptr;
 inodes_t* inodes_ptr;
 dentry_t* entry_ptr;

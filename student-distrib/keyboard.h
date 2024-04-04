@@ -15,6 +15,7 @@ int caps_lock;
 int shift;
 int ctrl;
 int alt;
+int gotNewLine;
 
 
 //Converts a scancode to a character

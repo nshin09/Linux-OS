@@ -4,13 +4,14 @@
 #include "types.h"
 #include "file_system.h"
 
+#define MAX_FD_ENTRIES 8 //8 totalk files alowed
 
 typedef struct  PCB_t {
     uint32_t Active : 1;
     uint32_t PID;
     uint32_t Parent_PID;
     uint32_t EBP;
-    fdt_entry_t FDT[8];
+    fdt_entry_t FDT[MAX_FD_ENTRIES];
     uint8_t syscall_args[32];
 } PCB_t;
 

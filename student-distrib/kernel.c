@@ -145,7 +145,7 @@ void entry(unsigned long magic, unsigned long addr) {
     }
 
     /* Init the PIC */
-    printf("calling idt initializer\n");
+    // printf("calling idt initializer\n");
     idt_initializer();
     i8259_init();
 
@@ -166,9 +166,11 @@ void entry(unsigned long magic, unsigned long addr) {
 #ifdef RUN_TESTS
     /* Run tests */
     clear();
-    launch_tests();
+    // launch_tests();
+    
 #endif
     /* Execute the first program ("shell") ... */
+    execute((uint8_t*)("shell"));
     /* Clear the screen. */
     //clear();
 

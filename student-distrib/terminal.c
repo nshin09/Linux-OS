@@ -15,16 +15,14 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     int i = 0;
     // printf("in terminal read");
     // printf("\n");
-    if(nbytes > 128)
-    {
-        nbytes = 128;
+    while (gotNewLine == 0){
+
     }
-    while(i < keyboard_buffer_index && keyboard_buffer[i] != '\n' && i < nbytes ) 
+    gotNewLine = 0;
+    while(i < keyboard_buffer_index && keyboard_buffer[i] != '\n' && i < 128 && i < nbytes ) 
     {
         ((char*)buf)[i] = keyboard_buffer[i];
         
-        // printf("%c -> %c \n", keyboard_buffer[i], buf[i]);
-
         i++;
     }
     // keyboard_buffer_index = 0;
@@ -36,12 +34,13 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes)
 {
     int i = 0;
 
-    while(i < nbytes)
+    // printf("t write");
+    while(i < nbytes && ((char*)buf)[i]!= '\0')
     {
         putc(((char*)buf)[i]);
         i++;
-    }
-    printf("\n");   
+    } 
+    // printf("\n");
     return nbytes;
 }
 
