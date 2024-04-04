@@ -1,7 +1,7 @@
 #ifndef TERMINAL_H_
 #define TERMINAL_H_
 
-
+// int rtc_mode;
 #include "types.h"
 // opens the terminal
 int32_t terminal_open(const uint8_t* filename);

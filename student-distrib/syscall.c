@@ -123,12 +123,15 @@ int32_t open (const uint8_t* filename){
             int fileType = temp_dentry.file_type;
             if (fileType == 0){
                 PCB->FDT[i].fop_table_ptr = &rtc_fop;
+                rtc_mode = 1;            
             }
             if (fileType == 1){
                 PCB->FDT[i].fop_table_ptr = &directory_fop;
+                rtc_mode = 0;    
             }
             if (fileType == 2){
                 PCB->FDT[i].fop_table_ptr = &file_fop;
+               rtc_mode = 0;    
             }          
             break;
         }
@@ -157,7 +160,7 @@ int32_t close (int32_t fd){
     PCB->FDT[fd].file_position = 0;
     int closed = PCB->FDT[fd].fop_table_ptr->close(fd);
     PCB->FDT[fd].fop_table_ptr = &null_fop;
-    
+    rtc_mode = 0;   
     return closed;
 }
 

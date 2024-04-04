@@ -6,7 +6,11 @@
 // include constant values
 #define DEFAULT_FREQUENCY 1024
 #define MAX_RATE 0xF
-
+// global variable to be used as a flag if int occurred
+volatile int rtc_int;
+volatile int rtc_ticks;
+int rtc_rate;
+int rtc_mode; // indicates if file type is rtc. 
 // function that initializes rtc
 void rtc_init();
 // change the interrupt rate of the rtc

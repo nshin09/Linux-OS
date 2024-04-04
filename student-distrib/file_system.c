@@ -149,7 +149,7 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes)
  * Function: Opens a specified file*/
 int32_t file_open(const uint8_t* filename)
 {
-    int i;
+    // int i;
     // int canOpen = 0;
     // dentry_t temp_dentry;
     // int does_exist = read_dentry_by_name(filename, &temp_dentry);

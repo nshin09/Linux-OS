@@ -17,9 +17,9 @@ kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
 keyboard.o: keyboard.c lib.h types.h i8259.h keyboard.h terminal.h
 lib.o: lib.c lib.h types.h
 paging.o: paging.c paging.h types.h paging_asm.h lib.h x86_desc.h
-rtc.o: rtc.c rtc.h types.h i8259.h lib.h
+rtc.o: rtc.c rtc.h types.h i8259.h lib.h keyboard.h
 syscall.o: syscall.c syscall.h types.h file_system.h lib.h multiboot.h \
   syscall_asm.h paging.h rtc.h terminal.h x86_desc.h
-terminal.o: terminal.c keyboard.h types.h lib.h terminal.h
+terminal.o: terminal.c keyboard.h types.h lib.h terminal.h rtc.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h paging.h idt_asm.h \
   terminal.h keyboard.h rtc.h syscall.h file_system.h multiboot.h

@@ -1,8 +1,7 @@
 #include "keyboard.h"
 #include "lib.h"
 #include "terminal.h"
-
-
+#include "rtc.h"
 int32_t terminal_open(const uint8_t* filename){
     return 0;
 }

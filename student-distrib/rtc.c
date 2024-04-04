@@ -1,10 +1,7 @@
 #include "rtc.h"
 #include "i8259.h"
 #include "lib.h"
-// global variable to be used as a flag if int occurred
-volatile int rtc_int;
-volatile int rtc_ticks;
-int rtc_rate;
+#include "keyboard.h"
 /* void: rtc_init(void)
  * Inputs: void
  * Return Value: void
@@ -23,7 +20,7 @@ void rtc_init()
     outb(prev | 0x40, 0x71);	// write the previous value ORed with 0x40. This turns on bit 6 of register B
     // sti();
     enable_irq(0x08); // this command enables the irq_8 that was just initialized
-    rtc_rate = 1; // default frequency 1024/1024;
+    rtc_rate = 32; // default frequency 1024/1024;
     rtc_ticks = rtc_rate;
 }
 /* void: rtc_handler(void)
@@ -40,6 +37,10 @@ void rtc_handler()
     {
         rtc_int = 1;
         rtc_ticks = rtc_rate;
+        if(rtc_mode == 1)
+        {
+            gotNewLine = 1;
+        }
     }// just throw away contents
          
    
@@ -71,10 +72,11 @@ int32_t rtc_close(int32_t fd) {
  * Function: waits for rtc int to be held high so that it can update the screen.  */
 int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes) {
     rtc_int = 0;
-
+    gotNewLine = 0;
     while(rtc_int == 0) {
         //wait for rtc_int to be 1
     }
+    
     return 0;
 }
 /* void rtc_write (int32_t fd, const int32_t* buf, int32_t nbytes) 
@@ -90,6 +92,7 @@ int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes) {
     }
     rtc_rate = 1024 / ((uint32_t*)buf)[0]; // 1024 / frequency;
     rtc_ticks = rtc_rate;
+    
     return 0;
 }
 /* void rtc_change rate(int32_t frequency)
