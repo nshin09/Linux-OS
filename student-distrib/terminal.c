@@ -19,13 +19,27 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
 
     }
     gotNewLine = 0;
-    while(i < keyboard_buffer_index && keyboard_buffer[i] != '\n' && i < 128 && i < nbytes ) 
+    while(i < KBI_for_read && keyboard_buffer[i] != '\n' && i < 128 && i < nbytes ) 
     {
         ((char*)buf)[i] = keyboard_buffer[i];
         
         i++;
     }
-    // keyboard_buffer_index = 0;
+    //Print buffer to check if this is working
+    // printf("B->");
+    // for(i=0; ((char*)buf)[i] != '\0' && ((char*)buf)[i] != '\n'; i++){
+    //     putc(((char*)buf)[i]);
+    // }
+    // printf("<-\n");
+    // printf("K->");
+    // for(i=0; keyboard_buffer[i] != '\0' && keyboard_buffer[i] != '\n'; i++){
+    //     putc(keyboard_buffer[i]);
+    // }
+    // printf("<-\n");
+
+    // printf("Possible limiters are Keyboard_buffer_index: %d, nbytes: %d \n", KBI_for_read, nbytes);
+
+    keyboard_buffer_index = 0;
     return nbytes;
 }
 

@@ -55,6 +55,7 @@ void Flush_TLB(unsigned long addr){
 }
 
 int32_t halt (uint8_t status){
+    printf("In halt syscall");
     // //Get PCB
     // PCB_t* PCB = Get_PCB_ptr(PID);
     // //Set EBP and ESP to value saved 
@@ -320,7 +321,10 @@ int32_t execute (const uint8_t* command){
     return 0;
 }
 
-
+/*
+ * Null functions below are used to fill the FOP table when the 
+ * file shouldn't be able to do this action.
+ */
 int32_t null_read(int32_t fd, void* buf, int32_t nbytes)
 {
     return -1;

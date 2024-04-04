@@ -29,5 +29,6 @@ char terminal_buf[128];
 
 //Index of the first unfilled space in the keyboard_buffer
 int32_t keyboard_buffer_index;
+int32_t KBI_for_read;
 
 #endif
