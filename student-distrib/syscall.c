@@ -59,12 +59,27 @@ void Flush_TLB(unsigned long addr){
 }
 
 int32_t halt (uint8_t status){
-    // printf("\nIn halt syscall");
-    // //Get PCB
-    // PCB_t* PCB = Get_PCB_ptr(PID);
-    // //Set EBP and ESP to value saved 
-    //in PCB
-    // Set_EBP_ESP(PCB->EBP);
+    //Clear PCB
+    PID_ARRAY[PID] = 0;
+
+    //Get PCB
+    PCB_t* PCB = Get_PCB_ptr(PID);
+
+    int i;
+    for(i=0; i<8; i++){
+        PCB->FDT[i].flags = 0;
+    }
+
+    //Reset TSS
+    tss.ss0 = PCB->SS0;
+    tss.esp0 = PCB->ESP0;
+
+    page_directory[32].addr = (CURR_MEM + (PCB->Parent_PID)*0x400000)>> 12;
+
+    Flush_TLB(page_directory[32].addr);
+    //Set EBP and ESP to value saved in PCB
+    Set_EBP_ESP((uint32_t)PCB->EBP, (uint32_t)PCB->ESP);
+
     return 0;
 }
 
@@ -313,6 +328,11 @@ int32_t execute (const uint8_t* command){
     PCB->FDT[1].flags = 1;
 
     strncpy((int8_t*)PCB->syscall_args,(int8_t*)filename,32); // max character length
+
+    PCB->SS0 = tss.ss0;
+    PCB->ESP0 = tss.esp0;
+    PCB->ESP = Get_ESP();
+    PCB->EBP = Get_EBP();
 
     // tss.ss0 = USER_DS;
     tss.esp0 = 0x800000 - (8192*PID);

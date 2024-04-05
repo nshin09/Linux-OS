@@ -17,13 +17,15 @@ syscall_handler:
     # pushl %ebp
     # pushl %edi
     # pushl %esi
-    movl %ebp, registers
-    movl %edi, registers+4
-    movl %esi, registers+8
+    pushl %ebp
     pushl %edx
     pushl %ecx
     pushl %ebx
     pushfl
+    movl %edi, registers
+    movl %esi, registers+4
+    
+
     #Callee setup
 
   
@@ -45,13 +47,13 @@ syscall_handler:
     popl %ebx
     popl %ecx
     popl %edx
-    movl registers,%ebp
-    movl  registers+4,%edi
-    movl  registers+8,%esi
+    popl %ebp
+
+    movl registers, %edi
+    movl registers+4, %esi
     # popl %esi
     # popl %edi
     # popl %ebp
-
 
     iret
 
@@ -60,9 +62,12 @@ FAIL:
     popl %ebx
     popl %ecx
     popl %edx
-    popl %esi
-    popl %edi
-    popl %ebp
+    movl registers,%ebp
+    movl registers+4,%edi
+    movl registers+8,%esi
+    # popl %esi
+    # popl %edi
+    # popl %ebp
     movl $-1, %eax
 
     iret
@@ -88,16 +93,27 @@ Save_context:
     iret 
 
 
-# .globl Get_EBP
-# Get_EBP:
-#     movl %ebp, %eax
-#     ret
+.globl Get_EBP
+Get_EBP:
+    movl %ebp, %eax
+    ret
+
+.globl Get_ESP
+Get_ESP:
+    movl %esp, %eax
+    ret
 
 # Sets EBP and ESP to the passed value correctly.
 # ret then gets messed up since the new ESP doesn't have 
 # the right EIP value on it's stack.
-# .globl Set_EBP_ESP
-# Set_EBP_ESP:
-#     movl 4(%esp), %ebp
-#     movl %ebp, %esp
-#     ret 
+.globl Set_EBP_ESP
+Set_EBP_ESP:
+    pushl   %ebp
+    movl    %esp, %ebp
+    movl    16(%ebp), %eax  #Save return value
+    movl	12(%ebp), %esp
+    movl    8(%ebp), %ebp
+    leave
+    ret 
+
+.end

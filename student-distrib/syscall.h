@@ -11,8 +11,12 @@ typedef struct  PCB_t {
     uint32_t PID;
     uint32_t Parent_PID;
     uint32_t EBP;
+    uint32_t ESP;
+    uint32_t SS0;
+    uint32_t ESP0;
     fdt_entry_t FDT[MAX_FD_ENTRIES];
     uint8_t syscall_args[32];
+
 } PCB_t;
 
 // extern void syscall_handler_c(int call_num, int arg1, int arg2, int arg3);
