@@ -10,7 +10,6 @@
 const int CURR_MEM = 0x800000; //8 Megabyes
 const int MAX_FILE_VALUE = 40000;
 int PID = 0;
-int PID_Count = 0;
 
 int PID_ARRAY[6] = {0,0,0,0,0,0};
 uint8_t args[128] = {'\0'};
@@ -79,9 +78,9 @@ int32_t halt (uint8_t status){
 
     Flush_TLB(page_directory[32].addr);
     //Set EBP and ESP to value saved in PCB
-    PID_Count--;
-    printf("\nPID: %d\n", PID_Count);
-    if(PID_Count < 1){
+    PID--;
+    // printf("\nPID: %d\n", PID);
+    if(PID < 0){
         printf("Cannot Exit Base Shell. Restarting\n");
         execute((uint8_t*)"shell");
     }
@@ -283,9 +282,12 @@ int32_t execute (const uint8_t* command){
     {
         if(PID_ARRAY[i] == 0) // if PID is free. 
         {
-            PID_Count++;
+            // printf("PID Before Set in Exec: %d\n", PID);
+
             PID = i;
             PID_ARRAY[i] = 1;
+            // printf("PID After Set in Exec: %d\n", PID);
+
             occupied = 0; // indicates that a pid was not busy.
             break; 
         }
