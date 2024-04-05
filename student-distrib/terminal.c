@@ -18,6 +18,12 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
 
     }
     gotNewLine = 0;
+
+    while(i<strlen(buf)) 
+    {
+        ((char*)buf)[i] = '\0';
+        i++;
+    }
     while(i < KBI_for_read && keyboard_buffer[i] != '\n' && i < 128 && i < nbytes ) 
     {
         ((char*)buf)[i] = keyboard_buffer[i];   
