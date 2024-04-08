@@ -51,6 +51,40 @@ RTC read function gets stuck and causes RTC not to work.
     disabling interrupts at the start of this function caused the program to get stuck with no way to exit. By removing the line
     that disable interrupts, RTC functionality started working.
 
+
 Checkpoint 3:
+
+In Execute, arguments passed to read_dentry_by_name sometimes get messed up. The string has extra characters that appear once inside
+of the read_dentry_by_name function that aren't present in the argument before it's called.
+    Solution: This bug usually happened when the command was just the one argument, and we figured that our test command didn't have 
+    a '\0' at the end.. We solved this issue by adding a null character at the end of the command. We recognized that because terminal
+    adds a '\n' character when enter is pressed, we could replace that with a '\0' character without much issue. This solved the
+    problem and we no longer got the weird, extraneous characters.
+
+Syscall_handler was saving registers incorrectly and they were being reset to incorrect values
+    Solution: The pushl and popl commands, when used on certain registers (namely %edi and %esi) weren't accurately copying
+    the contents of the register. To fix this, we instead saved some registers to a location in memory instead of saving them 
+    to the stack.
+
+Halt page faults whenever you try to return to the starting context
+    Solution: Because of how we were saving our registers due to the above error, our %ebp register was never being pushed. 
+    We had originally thought that %ebp was also being copied incorrectly using push/pop, but this meant that %ebp wasn't on our 
+    stack when we tried to do the context switch for halt, leading to a page fault error due to having an invalid ebp.
+
+
+Shell says that all commands don't exist
+    Solution: We were reseting our keyboard buffer index in our keyboard handler when enter was pressed. This meant that when
+    terminal_read was then called, since it copies from the start to keyboard buffer index, it was copying 0 characters. We fixed
+    this by creating a second variable (KBI_for_read) that is set to keyboard_buffer_index reight before that variable gets set 
+    to 0. KBI_for_read is then used to check how much to copy in the terminal read function.
+
+After testprint is run, shell giving 'no command found' for all commands (valid and invalid)
+    Solution: We had been clearing our buffer incorrectly. In our terminal_read function, we looped through the buffer
+    as had been written and set it to the '\0' character. The issue with out implementation was that we were using strlen(buf) to
+    determine how many characters to set. When we looked further into it, strlen was only returning one or two characters when the 
+    buffer was actually significantly longer, meaning our terminal_read was receiving the ending of the previous command if it was
+    larger than the current command, and testprint is the longest command, which is why it was most noticeable.
+
+
 Checkpoint 4:
 Checkpoint 5:
