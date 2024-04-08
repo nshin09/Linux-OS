@@ -13,39 +13,49 @@ int PID = 0;
 
 int PID_ARRAY[6] = {0,0,0,0,0,0};
 uint8_t args[128] = {'\0'};
+/* void: initialize_fop()
+ * Inputs: none
+ * Return Value: none
+ * Function: exactly as name specifies, sets values of all fops to default values, e.g.: null fops get set to corresponding null_values */
+
 void initialize_fop()
 {
+    //init null fop
     null_fop.open = null_open;
     null_fop.close = null_close;
     null_fop.read = null_read;
     null_fop.write = null_write; 
-
+    //init stdin fop
     stdin_fop.open = &terminal_open;
     stdin_fop.close = &terminal_close;
     stdin_fop.read = &terminal_read;
     stdin_fop.write = &null_write;
-
+    //init stdout fop
     stdout_fop.open = &terminal_open;
     stdout_fop.close = &terminal_close;
     stdout_fop.read = &null_read;
     stdout_fop.write = &terminal_write;
-
+    //init rtc fop
     rtc_fop.open = rtc_open;
     rtc_fop.close = rtc_close;
     rtc_fop.read = rtc_read;
     rtc_fop.write = rtc_write;
-
+    //init directory fop
     directory_fop.open = directory_open;
     directory_fop.close = directory_close;
     directory_fop.read = directory_read;
     directory_fop.write = directory_write;
-
+    //init file fop
     file_fop.open = file_open;
     file_fop.close = file_close;
     file_fop.read = file_read;
     file_fop.write = file_write;
 }
 
+/* PCB: Get_PCB_ptr (int local_PID)
+ * Inputs: local_PID
+ * Return Value: PCB
+ * Function: returns pointer to process control block pointer depending on whether local process id is present (!-1), or not*/
 PCB_t* Get_PCB_ptr (int local_PID){
     if(local_PID == -1) // this is used for file system
     {
@@ -53,11 +63,18 @@ PCB_t* Get_PCB_ptr (int local_PID){
     }
     return (PCB_t*)(CURR_MEM - (local_PID+1)*PCB_size);
 }
-
+/* void: Flush_TLB(unsigned long addr)
+ * Inputs: unsigned long addr
+ * Return Value: none
+ * Function: clears the values in the transition lookaside buffer, which starts at addr, used in context switching when we need to flush contents of TLBs to prevent misses*/
 void Flush_TLB(unsigned long addr){
     asm volatile("invlpg (%0)" :: "r" (addr) : "memory");
 }
 
+/* int32: halt (uint8_t status)
+ * Inputs: unsigned long addr
+ * Return Value: 0 if completed successfully
+ * Function: terminates a process, */
 int32_t halt (uint8_t status){
     //Clear PCB
     PID_ARRAY[PID] = 0;
