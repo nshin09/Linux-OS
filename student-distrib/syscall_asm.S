@@ -62,9 +62,9 @@ FAIL:
     popl %ebx
     popl %ecx
     popl %edx
-    movl registers,%ebp
-    movl registers+4,%edi
-    movl registers+8,%esi
+    popl %ebp
+    movl registers,%edi
+    movl registers+4,%esi
     # popl %esi
     # popl %edi
     # popl %ebp
