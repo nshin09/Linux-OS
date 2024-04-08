@@ -5,6 +5,10 @@
 .globl flush_tlb, syscall_handler
 .globl Save_context
 
+# void flush_tlb();
+# Inputs: None
+# Return: None
+# Function: Flushes the TLB by writing cr3 to itself
 flush_tlb:
     movl %cr3, %eax
     movl %eax, %cr3
@@ -13,7 +17,16 @@ flush_tlb:
 registers:
     .long 0,0,0
 
+# void* syscall_handler(uint32_t sycall_num, void* arg1, void* arg2, void* arg3);
+# Inputs: syscall_num - the index of the syscall to be called.
+#         arg1, arg2, arg3 - arguments to be passed to the syscall. Their functions and existence
+#                            vary depending on which syscall is called.
+# Return: The return value of the syscall, or -1 if syscall_num is invalid
+# Function: Pushes arguments to the stack, checks if syscall_num is valid, and then calls
+#           the c function for the corresponding syscall.
 syscall_handler:
+    #Callee setup
+
     # pushl %ebp
     # pushl %edi
     # pushl %esi
@@ -24,11 +37,6 @@ syscall_handler:
     pushfl
     movl %edi, registers
     movl %esi, registers+4
-    
-
-    #Callee setup
-
-  
     
     #Check eax in valid bounds
     cmpl $1, %eax
@@ -75,6 +83,12 @@ FAIL:
 jmptable:
     .long   halt, halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn 
 
+# void Save_context(uint32_t ESP, uint32_t EIP);
+# Inputs: ESP - The ESP value to be saved to the stack
+#         EIP - The EIP value to be saved to the stack
+# Return: None
+# Function: Saves ESP and EIP and then switches the prorgams
+#           context in order to execute a file.
 Save_context:
 #     pushl %eax
 #     pushl %ebx 
@@ -92,20 +106,30 @@ Save_context:
     # movl 24(%esp), %eax
     iret 
 
-
+# uint32_t Get_EBP();
+# Inputs: None
+# Return: The current EBP value
+# Function: return EBP so it can be saved in C functions
 .globl Get_EBP
 Get_EBP:
     movl %ebp, %eax
     ret
 
+# uint32_t Get_ESP();
+# Inputs: None
+# Return: The current ESP value
+# Function: return ESP so it can be saved in C functions
 .globl Get_ESP
 Get_ESP:
     movl %esp, %eax
     ret
 
-# Sets EBP and ESP to the passed value correctly.
-# ret then gets messed up since the new ESP doesn't have 
-# the right EIP value on it's stack.
+# void Set_EBP_ESP(uint32_t EBP, uint32_t ESP);
+# Inputs: EBP - The EBP of the spot to return to
+#         ESP - The ESP of the spot to return to
+# Return: None
+# Function: Resets EBP and ESP to switch back to the original context that 
+#           called execute
 .globl Set_EBP_ESP
 Set_EBP_ESP:
     pushl   %ebp
