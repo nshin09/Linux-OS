@@ -132,7 +132,12 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
     return 0;
 }
 
-//nothing for cp2, directly using helper
+/* int32_t file_read(int32_t fd, void* buf, int32_t nbytes)
+ * Inputs: int32_t fd - file descriptor to index into file descriptor table, specifies file 
+           void* buf buffer to read into
+           int32_t nbytes - num of bytes to read
+ * Return Value: 0 if file exists, -1 if not
+ * Function: reads nbytes of data from file*/
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes)
 {
     if (fd<0 || fd>MAX_FD_ENTRIES){
@@ -146,7 +151,12 @@ int32_t file_read(int32_t fd, void* buf, int32_t nbytes)
     }
     return 0;
 }
-
+/* int32_t directory_read(int32_t fd, void* buf, int32_t nbytes)
+ * Inputs: int32_t fd - file descriptor to index into file descriptor table, specifies file 
+           void* buf buffer to read into
+           int32_t nbytes - num of bytes to read
+ * Return Value: 0 if file exists, -1 if not
+ * Function: Looks for the specified index within a directory*/
 int32_t directory_read(int32_t fd, void* buf, int32_t nbytes)
 {
     int i;

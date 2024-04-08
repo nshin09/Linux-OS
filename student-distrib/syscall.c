@@ -53,7 +53,7 @@ void initialize_fop()
 }
 
 /* PCB: Get_PCB_ptr (int local_PID)
- * Inputs: local_PID
+ * Inputs: local_PID - value of program index
  * Return Value: PCB
  * Function: returns pointer to process control block pointer depending on whether local process id is present (!-1), or not*/
 PCB_t* Get_PCB_ptr (int local_PID){
@@ -72,9 +72,9 @@ void Flush_TLB(unsigned long addr){
 }
 
 /* int32: halt (uint8_t status)
- * Inputs: unsigned long addr
+ * Inputs: uint8_t status
  * Return Value: 0 if completed successfully
- * Function: terminates a process, */
+ * Function: terminates a process, returns to parent process. clears pcb, flushes tlb and resets tss, and completes all needed process prior to context switch.*/
 int32_t halt (uint8_t status){
     //Clear PCB
     PID_ARRAY[PID] = 0;
@@ -106,7 +106,13 @@ int32_t halt (uint8_t status){
 
     return 0;
 }
-
+/* int32: read (int32_t fd, void* buf, int32_t nbytes)
+ * Inputs: int32_t fd - file descriptor to index into file descriptor table, specifies file 
+           void* buf buffer to read into
+           int32_t nbytes - num of bytes to read
+ * Return Value: nbytes written
+ * Return Value: nbytes read
+ * Function: reads nbytes from a file and puts in buf .*/
 int32_t read (int32_t fd, void* buf, int32_t nbytes){
     //Get File from File Descriptor Table?
     if (fd<0 || fd>MAX_FD_ENTRIES){
@@ -120,7 +126,12 @@ int32_t read (int32_t fd, void* buf, int32_t nbytes){
     // printf("finished read\n");
     return ret;
 }
-
+/* int32: write (int32_t fd, void* buf, int32_t nbytes)
+ * Inputs: int32_t fd - file descriptor to index into file descriptor table, specifies file 
+           void* buf buffer to write into
+           int32_t nbytes - num of bytes to write
+ * Return Value: nbytes written
+ * Function: writes nbytes.*/
 int32_t write (int32_t fd, const void* buf, int32_t nbytes){
     //Get File from File Descriptor Table
     // printf("in write\n");
@@ -137,6 +148,13 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
     return ret;
 }
 
+/* int32: open (const uint8_t* filename)
+ * Inputs: const uint8_t* filename - filename to read from dentry
+   Return Value: i, index of MAX_FD_ENTRIES in which we broke in for loop
+   Function:: call finds the directory entry corresponding to the named file, allocate an unused file descriptor, and sets up fops for 
+   any type of avail file(directory,RTC device, or regular file).
+   If the named file does not exist or no descriptors are free, the call returns -1. tldr: provides access to the file system
+.*/
 int32_t open (const uint8_t* filename){
     //get current pcb
     // printf("starting open\n");
@@ -187,6 +205,12 @@ int32_t open (const uint8_t* filename){
     return i;
 }
 
+/* int32: close (int32_t fd)
+ * Inputs: int32_t fd - file descriptor to index into file descriptor table, specifies file
+   Return Value: 0 if successful, -1 else
+   Function:: closes the specified file descriptor and makes it available for return from later calls to open. -1 if trying to close invalid file. sets pcb->fdt values to 0, or 
+   defaults.
+.*/
 int32_t close (int32_t fd){
     //Get File from File Descriptor Table?
     //file = fdt[fd]
@@ -207,6 +231,11 @@ int32_t close (int32_t fd){
     return closed;
 }
 
+/* int32: getargs (uint8_t* buf, int32_t nbytes)
+ * Inputs: uint8_t* buf - buffer to write into, int32_t nbytes - num of bytes to write
+   Return Value: 0 if successful, or if the arguments and a terminal NULL (0-byte) do not fit in the buffer, returns -1
+   Function: parses program's line command into arguments and loads into buf.
+.*/
 int32_t getargs (uint8_t* buf, int32_t nbytes){
     int i;
     for(i=0; i < nbytes && args[i] != '\0' ; i++){
@@ -216,6 +245,11 @@ int32_t getargs (uint8_t* buf, int32_t nbytes){
     return 0;
 }
 
+/* int32: vidmap (uint8_t** screen_start)
+ * Inputs: uint8_t** screen_start
+   Return Value: 0 if successful, else returns -1
+   Function: n/a
+.*/
 int32_t vidmap (uint8_t** screen_start){
     return 0;
 }
@@ -228,7 +262,11 @@ int32_t sigreturn (void){
     return 0;
 }
 
-
+/* int32: execute (const uint8_t* command)
+ * Inputs: const uint8_t* command - space seperated command user enters in to terminal to be executed
+   Return Value: 0 if successful, else returns -1
+   Function: loads and 'executes' new program, based on input command. hands control of processor to new command. undone by halt.
+.*/
 int32_t execute (const uint8_t* command){
     cli();
     //Parse comman into individual arguments

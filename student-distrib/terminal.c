@@ -18,8 +18,7 @@ int32_t terminal_close(int32_t fd){
 /* int32: terminal_read(int32_t fd, void* buf, int32_t nbytes)
  * Inputs: file descriptor, buffer, num bytes
  * Return Value: nbytes read
- * Function: reads data from the keyboard, read from keyboard buffer and put it into the buf specified, read should return data from one line that has been terminated by pressing 
- Enter, or as much as fits in the buffer from one such line */
+ * Function: reads data from the keyboard, read from keyboard buffer and put it into the buf specified */
 
 int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     int i = 0;
