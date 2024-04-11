@@ -134,7 +134,9 @@ Get_ESP:
 Set_EBP_ESP:
     pushl   %ebp
     movl    %esp, %ebp
-    movl    16(%ebp), %eax  #Save return value
+    # movl    20(%ebp), %eax  #Save return value
+    andl    $0, %eax
+    movb    %bl, %al
     movl	12(%ebp), %esp
     movl    8(%ebp), %ebp
     leave

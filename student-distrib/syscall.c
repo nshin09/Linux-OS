@@ -10,6 +10,7 @@
 const int CURR_MEM = 0x800000; //8 Megabyes
 const int MAX_FILE_VALUE = 40000;
 int PID = 0;
+int ARGS_SIZE = 128;
 
 int PID_ARRAY[6] = {0,0,0,0,0,0};
 uint8_t args[128] = {'\0'};
@@ -77,12 +78,14 @@ void Flush_TLB(unsigned long addr){
  * Function: terminates a process, returns to parent process. clears pcb, flushes tlb and resets tss, and completes all needed process prior to context switch.*/
 int32_t halt (uint8_t status){
     //Clear PCB
+    // printf("%d", status);
     PID_ARRAY[PID] = 0;
-
     //Get PCB
     PCB_t* PCB = Get_PCB_ptr(PID);
+    // printf("\nPID: %d     Parent PID: %d\n", PID, PCB->Parent_PID);
 
     int i;
+
     for(i=0; i<8; i++){
         PCB->FDT[i].flags = 0;
     }
@@ -95,13 +98,13 @@ int32_t halt (uint8_t status){
 
     Flush_TLB(page_directory[32].addr);
     //Set EBP and ESP to value saved in PCB
-    PID--;
-    // printf("\nPID: %d\n", PID);
-    if(PID < 0){
+    if(PID == 0 && PCB->Parent_PID==0){
         printf("Cannot Exit Base Shell. Restarting\n");
         execute((uint8_t*)"shell");
     }
 
+    PID = PCB->Parent_PID;
+    
     Set_EBP_ESP((uint32_t)PCB->EBP, (uint32_t)PCB->ESP);
 
     return 0;
@@ -122,6 +125,7 @@ int32_t read (int32_t fd, void* buf, int32_t nbytes){
     PCB_t* PCB = Get_PCB_ptr(PID);
     fdt_entry_t file = PCB->FDT[fd];
     //Call fop table's read
+    // printf("fd %d  nbytes %d\n", fd, nbytes);
     int ret = file.fop_table_ptr->read(fd, buf, nbytes);
     // printf("finished read\n");
     return ret;
@@ -178,6 +182,7 @@ int32_t open (const uint8_t* filename){
             canOpen = 1;
             PCB->FDT[i].flags = 1;
             PCB->FDT[i].inode = temp_dentry.node_num;
+            // printf("%d", temp_dentry.node_num);
             PCB->FDT[i].file_position = 0;
 
             // 0 - rtc 1 -dir 2-file
@@ -238,8 +243,10 @@ int32_t close (int32_t fd){
 .*/
 int32_t getargs (uint8_t* buf, int32_t nbytes){
     int i;
+    
     for(i=0; i < nbytes && args[i] != '\0' ; i++){
         buf[i] = args[i];
+        // printf("%c\n", ((uint8_t*)buf)[i]);
     }
 
     return 0;
@@ -288,9 +295,15 @@ int32_t execute (const uint8_t* command){
     spaces[num_spaces+1] = strlen((char*)command);
 
     //Save args for the getargs call
+//Save args (not including leading space) for the getargs call
+    //Clear buffer
     int j;
-    for(j=spaces[1]; command[j] != '\0'; j++){
-        args[j-spaces[1]] = command[j];
+    for(j=0; j<ARGS_SIZE; j++){
+        args[j] = '\0';
+    }
+    //Save args
+    for(j=spaces[1]+1; command[j] != '\0'; j++){
+        args[j-spaces[1]-1] = command[j];
     }
 
     //Check if filename exists
@@ -329,26 +342,24 @@ int32_t execute (const uint8_t* command){
     //Setup Paging
     //Check if we reached max PCBs
     if(PID >= 5){
+        printf("No available PIDs\n");
         return -1;
     }
-    int occupied = 1;
-    //Map virtual memory
+    int possibleParent = -1;
+    //Map virtual memory 
     for(i = 0; i < 6; i++) // go through each pid
     {
         if(PID_ARRAY[i] == 0) // if PID is free. 
         {
-            // printf("PID Before Set in Exec: %d\n", PID);
-
+            possibleParent = PID;   //holds the current pid which would be the parent of the new pid
             PID = i;
             PID_ARRAY[i] = 1;
-            // printf("PID After Set in Exec: %d\n", PID);
-
-            occupied = 0; // indicates that a pid was not busy.
             break; 
         }
     }
-    if(occupied == 1) // if all pids are in use cancel execute. 
+    if(possibleParent == -1) // if all pids are in use cancel execute. 
     {
+        printf("No available PIDs\n");
         return -1;
     }
 
@@ -371,7 +382,9 @@ int32_t execute (const uint8_t* command){
     PCB_t* PCB = Get_PCB_ptr(PID);
     PCB->Active = 1;
     PCB->PID = PID;
-    PCB->Parent_PID = 0; //True for 3.3 but not generally
+    PCB->Parent_PID = possibleParent; //True for 3.3 but not generally
+    // printf("%d", PCB->Parent_PID);
+    // printf("\nPID: %d     Parent PID: %d\n", PID, PCB->Parent_PID);
 
     //Load program from file system into memory directly
     int file_size = (inodes_ptr + temp_dentry.node_num)->length;
@@ -434,45 +447,4 @@ int32_t null_close(int32_t fd)
 {
     return -1;
 }
-/*
-    //    int i;
-    // int canOpen = 0;
-    // dentry_t temp_dentry;
-    // int does_exist = read_dentry_by_name(filename, &temp_dentry);
-    // if(does_exist ==-1){
-    //     return -1;
-    // }
-    // PCB_t* pcb_pointer = Get_PCB_ptr(PID);
-    // for(i=0; i <FD_TABLE_ENTRIES;i++){
-    //     if (pcb_pointer->FDT[i].flags == 0){
-    //         canOpen = 1;
-    //         //populate data
-    //         pcb_pointer->FDT[i].flags = 1;
-    //         pcb_pointer->FDT[i].file_position = 0;
-    //         pcb_pointer->FDT[i].inode = temp_dentry.node_num;
 
-    //         int file_type = temp_dentry.file_type;
-    //         if(file_type == 0){
-    //             pcb_pointer->FDT[i].fop_table_ptr->open = rtc_open;
-    //             pcb_pointer->FDT[i].fop_table_ptr->close = rtc_close;
-    //             pcb_pointer->FDT[i].fop_table_ptr->read = rtc_read;
-    //             pcb_pointer->FDT[i].fop_table_ptr->write = rtc_write;
-    //         } 
-    //         else if(file_type == 1){
-    //             pcb_pointer->FDT[i].fop_table_ptr->open = directory_open;
-    //             pcb_pointer->FDT[i].fop_table_ptr->close = directory_close;
-    //             pcb_pointer->FDT[i].fop_table_ptr->read = directory_read;
-    //             pcb_pointer->FDT[i].fop_table_ptr->write = directory_write;
-    //         } 
-    //         else if(file_type == 2){
-    //             pcb_pointer->FDT[i].fop_table_ptr->open = file_open;
-    //             pcb_pointer->FDT[i].fop_table_ptr->close = file_close;
-    //             pcb_pointer->FDT[i].fop_table_ptr->read = file_read;
-    //             pcb_pointer->FDT[i].fop_table_ptr->write = file_write;
-    //         }            
-    //     }
-    // }
-    // if(canOpen == 0){
-    //     return -1;
-    // }
-*/

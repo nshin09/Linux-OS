@@ -14,5 +14,5 @@ extern uint32_t Get_ESP();
 /* Sets EBP and ESP and switches back to the original context (this func is called in halt)*/
 extern void Set_EBP_ESP(uint32_t EBP, uint32_t ESP);
 
-
+// extern void Set_EBP_ESP(uint32_t EBP, uint32_t ESP);
 #endif

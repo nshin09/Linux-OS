@@ -87,4 +87,8 @@ After testprint is run, shell giving 'no command found' for all commands (valid 
 
 
 Checkpoint 4:
+When testing cat frame0.txt we were repeatedly printing the text file without spamming
+    Solution: In our file_read function we add the line PCB->FDT[fd].file_position = ret which sets the file position to the 
+    number of bytes we read in our read_data function. We then added a check in read_data checking if the file_position = file length
+    and if it is return 0. This stops the repeated read because we return 0 from file_read
 Checkpoint 5:

@@ -40,11 +40,15 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
     uint32_t* block_ptr;
     inodes_t* curr_inode = (inodes_t*)(inodes_ptr + inode);
     uint32_t file_length = curr_inode->length;
-    // check for bounds. 
-    if(offset >=  file_length || inode > boot_block_ptr->num_inodes)
+    // check for bounds.
+    if(offset >  file_length || inode > boot_block_ptr->num_inodes)
     {
         return -1;
+    } 
+    if (offset == length){
+        return 0;   //this means we read once and dont want to read again
     }
+
     // 4096 is equivalent to 4KB, which is the size of a single block. 
     uint32_t block_index = offset / 4096; //indicates which block you are on
     uint32_t byte_index = offset % 4096; // indicates how far within the block you are 
@@ -149,7 +153,8 @@ int32_t file_read(int32_t fd, void* buf, int32_t nbytes)
     {
         return -1;
     }
-    return 0;
+    PCB->FDT[fd].file_position = ret;   //edit file position to read from so we dont read again
+    return ret;
 }
 /* int32_t directory_read(int32_t fd, void* buf, int32_t nbytes)
  * Inputs: int32_t fd - file descriptor to index into file descriptor table, specifies file 
