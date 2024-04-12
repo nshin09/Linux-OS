@@ -153,7 +153,7 @@ int32_t file_read(int32_t fd, void* buf, int32_t nbytes)
     {
         return -1;
     }
-    PCB->FDT[fd].file_position = ret;   //edit file position to read from so we dont read again
+    PCB->FDT[fd].file_position = PCB->FDT[fd].file_position+ret;   //edit file position to read from so we dont read again
     return ret;
 }
 /* int32_t directory_read(int32_t fd, void* buf, int32_t nbytes)

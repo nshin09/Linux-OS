@@ -30,7 +30,7 @@ int main ()
 	else if (256 == rval)
 	    ece391_fdputs (1, (uint8_t*)"program terminated by exception\n");
 	else if (0 != rval)
-	    ece391_fdputs (1, (uint8_t*)"program terminated abnormally\n");
+	    ece391_fdputs (1, (uint8_t*)" terminated abnormally\n");
     }
 }
 

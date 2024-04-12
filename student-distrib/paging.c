@@ -30,6 +30,7 @@
         page_directory[i].present = 0; 
 
         page_table[i].present = 0;
+        page_table_vidmap[i].present = 0;
         if(i << 12 == 0xB8000) // if the index is equal to the start of VGA memory.
         {
             page_table[i].present = 1;
@@ -44,6 +45,17 @@
         page_table[i].user_supervisor = 0;
         page_table[i].read_write = 1;
         page_table[i].addr = i;
+
+        page_table_vidmap[i].available = 0;
+        page_table_vidmap[i].global_page = 0;
+        page_table_vidmap[i].PAT = 0;
+        page_table_vidmap[i].accessed = 0;
+        page_table_vidmap[i].dirty = 0;
+        page_table_vidmap[i].cache_disabled = 0;
+        page_table_vidmap[i].write_through = 0;
+        page_table_vidmap[i].user_supervisor = 0;
+        page_table_vidmap[i].read_write = 1;
+        page_table_vidmap[i].addr = i;
 
         
     }

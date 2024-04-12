@@ -243,7 +243,10 @@ int32_t close (int32_t fd){
 .*/
 int32_t getargs (uint8_t* buf, int32_t nbytes){
     int i;
-    
+    for(i =0; i < nbytes; i++) // clear buffer before reading a new file. 
+    {
+        buf[i] = '\0';
+    }
     for(i=0; i < nbytes && args[i] != '\0' ; i++){
         buf[i] = args[i];
         // printf("%c\n", ((uint8_t*)buf)[i]);
@@ -258,6 +261,31 @@ int32_t getargs (uint8_t* buf, int32_t nbytes){
    Function: n/a
 .*/
 int32_t vidmap (uint8_t** screen_start){
+    int addr = (uint32_t)screen_start;
+    if ( addr < 0x8000000 || addr > (0x8000000 + 0x400000) || screen_start == NULL)
+    {
+        return -1;
+    }  // check if it is within user memory
+     
+
+    // set up virtual address at 136 megabytes
+  // start of video memory shifted 12 bits
+
+    page_directory[34].present = 1; // 34 is from 0x8800000 >> 22
+    page_directory[34].user_supervisor = 1;
+    page_directory[34].page_size = 0;
+    page_directory[34].addr =((uint32_t)page_table_vidmap) >> 12;
+
+    page_table_vidmap[0].present = 1;
+    page_table_vidmap[0].user_supervisor = 1;
+    page_table_vidmap[0].addr = 0xB8;
+
+    do {                                    \
+		asm volatile ("call flush_tlb"      \
+		);                                  \
+	} while (0);
+
+    *screen_start = (uint8_t*)(0x8800000); // start of virtual memory
     return 0;
 }
 

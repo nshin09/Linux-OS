@@ -12,7 +12,7 @@
 .globl gdt_ptr
 .globl idt_desc_ptr, idt
 .globl gdt_desc_ptr
-.globl page_table,page_directory
+.globl page_table,page_directory,page_table_vidmap
 
 .align 4
 ;# added page_table and directory array, statically allocate memory.
@@ -28,6 +28,11 @@ page_directory:
     .long 0
     .endr
 
+.align 4096
+page_table_vidmap:
+    .rept 1024
+    .long 0
+    .endr
 
 tss_size:
     .long tss_bottom - tss - 1
