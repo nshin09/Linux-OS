@@ -40,13 +40,14 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
     uint32_t* block_ptr;
     inodes_t* curr_inode = (inodes_t*)(inodes_ptr + inode);
     uint32_t file_length = curr_inode->length;
+    // printf("Read data len %d, file_len %d ", length, file_length);
     // check for bounds.
     if(offset >  file_length || inode > boot_block_ptr->num_inodes)
     {
         return -1;
     } 
     if (offset == length){
-        return 0;   //this means we read once and dont want to read again
+        return length; //0;   //this means we read once and dont want to read again
     }
 
     // 4096 is equivalent to 4KB, which is the size of a single block. 
@@ -74,6 +75,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
         buf++; // increment values for next iteration
     }
 
+    //printf(":%d\n",i);
     return i;
 }
 
@@ -144,6 +146,7 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry)
  * Function: reads nbytes of data from file*/
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes)
 {
+    //printf(" file_read fd:%d, nbytes:%d\n", fd, nbytes);
     if (fd<0 || fd>MAX_FD_ENTRIES){
         return -1;
     }

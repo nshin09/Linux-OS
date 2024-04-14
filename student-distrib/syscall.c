@@ -117,6 +117,7 @@ int32_t halt (uint8_t status){
  * Return Value: nbytes read
  * Function: reads nbytes from a file and puts in buf .*/
 int32_t read (int32_t fd, void* buf, int32_t nbytes){
+    // fd: %d, nbytes: %d\n", fd, nbytes);
     //Get File from File Descriptor Table?
     if (fd<0 || fd>MAX_FD_ENTRIES){
         return -1;
@@ -206,7 +207,7 @@ int32_t open (const uint8_t* filename){
     if(canOpen == 0){
         return -1;
     }
-    // printf("got through open\n");
+
     return i;
 }
 
@@ -217,7 +218,7 @@ int32_t open (const uint8_t* filename){
    defaults.
 .*/
 int32_t close (int32_t fd){
-    //Get File from File Descriptor Table?
+    //Get File from File Descriptor Table
     //file = fdt[fd]
     PCB_t* PCB = Get_PCB_ptr(PID);
     //check bounds of fd and make sure not to overwrite stdin and stdout
@@ -261,6 +262,8 @@ int32_t getargs (uint8_t* buf, int32_t nbytes){
    Function: n/a
 .*/
 int32_t vidmap (uint8_t** screen_start){
+    // printf("Called Vidmap: screen start: %d\n", screen_start);
+
     int addr = (uint32_t)screen_start;
     if ( addr < 0x8000000 || addr > (0x8000000 + 0x400000) || screen_start == NULL)
     {
@@ -322,8 +325,7 @@ int32_t execute (const uint8_t* command){
     
     spaces[num_spaces+1] = strlen((char*)command);
 
-    //Save args for the getargs call
-//Save args (not including leading space) for the getargs call
+    //Save args (not including leading space) for the getargs call
     //Clear buffer
     int j;
     for(j=0; j<ARGS_SIZE; j++){
