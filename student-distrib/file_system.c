@@ -46,9 +46,6 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
     {
         return -1;
     } 
-    if (offset == length){
-        return length; //0;   //this means we read once and dont want to read again
-    }
 
     // 4096 is equivalent to 4KB, which is the size of a single block. 
     uint32_t block_index = offset / 4096; //indicates which block you are on
