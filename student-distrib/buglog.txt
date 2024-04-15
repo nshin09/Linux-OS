@@ -87,8 +87,21 @@ After testprint is run, shell giving 'no command found' for all commands (valid 
 
 
 Checkpoint 4:
+
 When testing cat frame0.txt we were repeatedly printing the text file without spamming
-    Solution: In our file_read function we add the line PCB->FDT[fd].file_position = ret which sets the file position to the 
+    Solution: In our file_read function we add the line PCB->FDT[fd].file_position = ret, which sets the file position to the 
     number of bytes we read in our read_data function. We then added a check in read_data checking if the file_position = file length
     and if it is return 0. This stops the repeated read because we return 0 from file_read
+
+Fish only printed the top left character and the I/M character that gets added in
+    Solution: In our read_data function for reading files, we were always returning 0 if the file's data took up less than one data block.
+    This meant that when fish was reading data, it was seeing the return value and thinking the entire file had been read, resulting in the
+    programming only reading one character from the file. Changing this to be the length of the file fixed this error.
+
+Grep prints "391OS>" twice after running 
+    Solution: In our read_terminal function, we wait for a gotNewLine signal, which can be set by other functions. Somewhere in 
+    grep, one of these other functions was setting gotNewLine to high, meaning it wouldn't wait for another input before trying to 
+    execute it. To solve this, we added a line to the start of read_terminal setting gotNewLine to high. This way it will only 
+    try to run an input that was passed while it's running, and not recognize things that were passed before it started running.
+
 Checkpoint 5:

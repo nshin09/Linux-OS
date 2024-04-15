@@ -22,7 +22,8 @@ int32_t terminal_close(int32_t fd){
 
 int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     int i = 0;
-    // printf("in terminal read");
+    gotNewLine = 0;
+    // printf(" -In terminal read %d", gotNewLine);
     // printf("\n");
     while (gotNewLine == 0){
 
