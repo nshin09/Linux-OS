@@ -91,4 +91,7 @@ When testing cat frame0.txt we were repeatedly printing the text file without sp
     Solution: In our file_read function we add the line PCB->FDT[fd].file_position = ret which sets the file position to the 
     number of bytes we read in our read_data function. We then added a check in read_data checking if the file_position = file length
     and if it is return 0. This stops the repeated read because we return 0 from file_read
+
+Fish animation was printing the frame in a slightly incorrect way. 
+    Solution : The problem was in our file read, there was an if statement that stopped the function if offset was equal to length, after removing this statement the 2nd character would then be printed and then the frame would be able to print successfully. 
 Checkpoint 5:
