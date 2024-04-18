@@ -15,6 +15,7 @@
 #include "paging.h"
 #include "file_system.h"
 #include "syscall.h"
+#include "pit.h"
 #define RUN_TESTS
 
 /* Macros. */
@@ -156,6 +157,7 @@ void entry(unsigned long magic, unsigned long addr) {
     rtc_init();
     initPaging();
     initialize_fop();
+    pit_init();
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
@@ -172,7 +174,7 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Execute the first program ("shell") ... */
     execute((uint8_t*)("shell"));
     /* Clear the screen. */
-    //clear();
+    // clear();
 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");

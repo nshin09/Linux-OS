@@ -244,6 +244,7 @@ int32_t close (int32_t fd){
 .*/
 int32_t getargs (uint8_t* buf, int32_t nbytes){
     int i;
+    int ret = 0;
     for(i =0; i < nbytes; i++) // clear buffer before reading a new file. 
     {
         buf[i] = '\0';
@@ -252,8 +253,9 @@ int32_t getargs (uint8_t* buf, int32_t nbytes){
         buf[i] = args[i];
         // printf("%c\n", ((uint8_t*)buf)[i]);
     }
-
-    return 0;
+    if(i == 0) 
+    ret = -1;
+    return ret;
 }
 
 /* int32: vidmap (uint8_t** screen_start)

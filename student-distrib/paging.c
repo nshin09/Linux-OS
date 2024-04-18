@@ -31,7 +31,7 @@
 
         page_table[i].present = 0;
         page_table_vidmap[i].present = 0;
-        if(i << 12 == 0xB8000) // if the index is equal to the start of VGA memory.
+        if(i << 12 == 0xB8000 || i == 0xB9 || i == 0xBA || i == 0xBB) // if the index is equal to the start of VGA memory.
         {
             page_table[i].present = 1;
         }

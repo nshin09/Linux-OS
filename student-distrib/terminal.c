@@ -2,6 +2,8 @@
 #include "lib.h"
 #include "terminal.h"
 #include "rtc.h"
+
+
 /* void: terminal open and close
  * Inputs: filename/fd
  * Return Value: 0, not implemented
@@ -36,10 +38,10 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
         i++;
     }
     i = 0;
-    while((i < KBI_for_read) && (keyboard_buffer[i] != '\n') && (i < 128) && (i < nbytes)) 
+    while((i < KBI_for_read) && (keyboard_buffer[ActiveTerminal][i] != '\n') && (i < 128) && (i < nbytes)) 
     {
-        ((char*)buf)[i] = keyboard_buffer[i];   
-        keyboard_buffer[i] = '\0';
+        ((char*)buf)[i] = keyboard_buffer[ActiveTerminal][i];   
+        keyboard_buffer[ActiveTerminal][i] = '\0';
         i++;
     }
     //Print buffer to check if this is working

@@ -1,4 +1,4 @@
-.globl RTC_HANDLER,KEYBOARD_HANDLER
+.globl RTC_HANDLER,KEYBOARD_HANDLER, PIT_HANDLER
 
 ;/* void RTC_HANLDER();
 ; * Inputs: None
@@ -34,5 +34,15 @@ KEYBOARD_HANDLER:
 
     iret
 
+PIT_HANDLER:
+    pushal
+    pushfl
+
+    call pit_handler
+
+    popfl
+    popal
+
+    iret
 
 .end

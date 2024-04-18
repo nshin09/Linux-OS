@@ -19,7 +19,7 @@ void initialize_keyboard(){
     alt = 0;
     textOverflow = 0;
     gotNewLine = 0;
-   
+    ActiveTerminal = 0;
 }
 
 /* char findChar(int c);
@@ -290,14 +290,45 @@ void keyboard_handler(){
     cli();
     int Scancode = inb(0x60);
     sti();
+    //set Shift, capslock, etc.
     int SetFlag = 0;
     SetFlag = check_flags(Scancode);
+    //Switch Terminal
+    if(alt == 1){
+        if((Scancode == 0x3b && ActiveTerminal != 0) || (Scancode == 0x3c && ActiveTerminal != 1)|| (Scancode == 0x3d && ActiveTerminal != 2)){
+            //Save active video memory to the active terminal's memory
+            void* ActiveMem = 0xB9000 + ActiveTerminal*0x1000;
+            memcpy(ActiveMem, (void*)0xB8000, 0x1000);
+
+            if(Scancode == 0x3b){ 
+                ActiveTerminal = 0;
+                printf("The key works");
+            }
+            else if(Scancode == 0x3c){ 
+                ActiveTerminal = 1; 
+                // clear();
+                // execute((uint8_t*)("shell"));
+            }
+            else if(Scancode == 0x3d){ 
+                ActiveTerminal = 2; 
+            }
+
+            //Copy the new terminal's memory into active memory
+            memcpy((void*)0xB8000, (void*)(0xB9000 + ActiveTerminal*0x1000), 0x1000);
+
+            //reset cursor
+            reset_scrn_xy();
+
+            send_eoi(0x01);
+            return;
+        }
+    }
     // printf("%d", textOverflow);
     if(ctrl == 1 && Scancode == 0x26) // 0x26 is L 
     {
         clear();
         reset_scrn_xy();
-        memset(keyboard_buffer, '\0', sizeof(keyboard_buffer));
+        memset(keyboard_buffer[ActiveTerminal], '\0', sizeof(keyboard_buffer[ActiveTerminal]));
         send_eoi(0x01); // need to send eoi to irq_1
         return;
 
@@ -313,12 +344,12 @@ void keyboard_handler(){
     {
         if(keyboard_buffer_index >= 128)
         {
-            keyboard_buffer[127] = '\n'; // 127 is the last index of buffer 
+            keyboard_buffer[ActiveTerminal][127] = '\n'; // 127 is the last index of buffer 
             keyboard_buffer_index = 127;
         }
         else
         {
-             keyboard_buffer[keyboard_buffer_index] = '\n';
+             keyboard_buffer[ActiveTerminal][keyboard_buffer_index] = '\n';
              
         }
         // keyboard_buffer_index++;
@@ -391,7 +422,7 @@ void keyboard_handler(){
             }
             //Print all keys that don't affect flags
             else if(SetFlag != 1){
-                keyboard_buffer[keyboard_buffer_index] = key;
+                keyboard_buffer[ActiveTerminal][keyboard_buffer_index] = key;
                 keyboard_buffer_index++;
                 putc(key);
             }

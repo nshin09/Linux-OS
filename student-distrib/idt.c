@@ -101,6 +101,18 @@ void idt_initializer(){
     idt[0x21].dpl = 0;
     SET_IDT_ENTRY(idt[0x21], KEYBOARD_HANDLER);
 
+    idt[0x20].present = 1; // 0x20 is the vector number for the PIT
+    idt[0x20].reserved0 = 0; 
+    idt[0x20].reserved1 = 1;
+    idt[0x20].reserved2 = 1;
+    idt[0x20].reserved3 = 0;
+    idt[0x20].reserved4 = 0;
+    idt[0x20].size = 1;
+    idt[0x20].seg_selector = KERNEL_CS;
+    idt[0x20].dpl = 0;
+    SET_IDT_ENTRY(idt[0x20], PIT_HANDLER);
+    
+
 
 
     // Set System call interrupt values

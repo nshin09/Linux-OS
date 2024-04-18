@@ -190,7 +190,7 @@ int terminal_test()
 	int i;
 	for(i = 0; i < 10; i++)
 	{
-		keyboard_buffer[i] = 'a';
+		keyboard_buffer[0][i] = 'a';
 		
 	}
 	keyboard_buffer_index = 10;
@@ -199,7 +199,7 @@ int terminal_test()
 	printf("%d characters in keyboard buffer: ", 10);
 	for(i = 0; i < 10; i++)
 	{
-		putc(keyboard_buffer[i]);
+		putc(keyboard_buffer[0][i]);
 		
 	}
 	char buffa[128];

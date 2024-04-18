@@ -7,5 +7,5 @@
 void RTC_HANDLER();
 //Handler for keyboard interrupts
 void KEYBOARD_HANDLER();
-
+void PIT_HANDLER();
 #endif
