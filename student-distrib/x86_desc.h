@@ -54,6 +54,23 @@ typedef struct seg_desc {
     };
 } seg_desc_t;
 
+/*
+ * Stores the Terminal structures for each of our terminals
+ */
+typedef struct Terminal_instance {
+    uint32_t Started : 1; //1 if the terminal has been started (even if it has since been quit)
+    uint32_t Active : 1;
+    uint32_t Vidmem_location;
+    uint32_t EBP;
+    uint32_t ESP;
+    uint32_t EIP;
+    int cursor_x;
+    int cursor_y;
+} Terminal_instance_t;
+
+// extern Terminal_instance_t Terminals;
+
+
 /* TSS structure */
 typedef struct __attribute__((packed)) tss_t {
     uint16_t prev_task_link;

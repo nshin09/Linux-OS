@@ -145,6 +145,23 @@ void entry(unsigned long magic, unsigned long addr) {
         ltr(KERNEL_TSS);
     }
 
+    {
+        Terminal_instance_t empty_terminal;
+        empty_terminal.Started = 0;
+        empty_terminal.Active = 0;
+        empty_terminal.Vidmem_location = 0;
+        empty_terminal.EBP = 0;
+        empty_terminal.ESP = 0;
+        empty_terminal.EIP = 0;
+        empty_terminal.cursor_x = 0;
+        empty_terminal.cursor_y = 0;
+
+        // Terminals = empty_terminal;
+        // Terminals[1] = empty_terminal;
+        // Terminals[2] = empty_terminal;
+        SetupTerminals(empty_terminal);
+    }
+
     /* Init the PIC */
     // printf("calling idt initializer\n");
     idt_initializer();

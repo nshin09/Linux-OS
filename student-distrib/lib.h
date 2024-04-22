@@ -20,6 +20,8 @@ extern int getScreenY();
 extern void decr_scrn_x();
 //moves up a line in case of overflow text
 extern void move_line_up();
+//Sets screen_x, screen_y, and updates cursor
+extern void SetXY();
 //updates the cursor 
 extern void update_cursor(int x, int y);
 //added test interrupts

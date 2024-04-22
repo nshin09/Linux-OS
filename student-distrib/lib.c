@@ -57,6 +57,12 @@ void move_line_up(){
     }
     update_cursor(screen_x,screen_y);
 }
+
+void SetXY(int x, int y){
+    screen_x = x;
+    screen_y = y;
+    update_cursor(screen_x, screen_y);
+}
 /*=======================*/
 
 /* void clear(void);

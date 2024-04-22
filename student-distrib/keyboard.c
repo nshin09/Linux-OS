@@ -2,7 +2,23 @@
 #include "i8259.h"
 #include "keyboard.h"
 #include "terminal.h"
+#include "x86_desc.h"
 
+Terminal_instance_t Terminals[3];
+
+void SetupTerminals(Terminal_instance_t empty){
+    Terminals[0] = empty;
+    Terminals[1] = empty;
+    Terminals[2] = empty;
+
+    StartTerminal(0);
+    ActiveTerminal = 0;
+}
+
+void StartTerminal(int idx){
+    Terminals[idx].Started = 1;
+    Terminals[idx].Active = 1;
+}
 
 /* void initialize_keyboard();
  * Inputs: None
@@ -299,7 +315,12 @@ void keyboard_handler(){
             //Save active video memory to the active terminal's memory
             void* ActiveMem = 0xB9000 + ActiveTerminal*0x1000;
             memcpy(ActiveMem, (void*)0xB8000, 0x1000);
+            
+            //Save current Active terminals EBP, ESP, etc.
+            Terminals[ActiveTerminal].cursor_x = getScreenX();
+            Terminals[ActiveTerminal].cursor_y = getScreenY();
 
+            //Change ActiveTerminal
             if(Scancode == 0x3b){ 
                 ActiveTerminal = 0;
                 printf("The key works");
@@ -312,12 +333,23 @@ void keyboard_handler(){
             else if(Scancode == 0x3d){ 
                 ActiveTerminal = 2; 
             }
+            
+            //If it's the first time in this terminal, start the terminal
+            if(Terminals[ActiveTerminal].Started == 0){
+                StartTerminal(ActiveTerminal);
+            }
 
             //Copy the new terminal's memory into active memory
             memcpy((void*)0xB8000, (void*)(0xB9000 + ActiveTerminal*0x1000), 0x1000);
 
+            //set new Active terminals EBP, ESP, etc.
+
             //reset cursor
-            reset_scrn_xy();
+            SetXY(Terminals[ActiveTerminal].cursor_x, Terminals[ActiveTerminal].cursor_y);
+            // printf("Terminal 0 has x %d, y %d\n", Terminals[0].cursor_x, Terminals[0].cursor_y);
+            // printf("Terminal 1 has x %d, y %d\n", Terminals[1].cursor_x, Terminals[1].cursor_y);
+            // printf("Terminal 2 has x %d, y %d\n", Terminals[2].cursor_x, Terminals[2].cursor_y);
+            //reset_scrn_xy();
 
             send_eoi(0x01);
             return;

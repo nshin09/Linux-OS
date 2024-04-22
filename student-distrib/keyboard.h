@@ -2,6 +2,9 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
+//initializes the terminal structures
+extern void SetupTerminals(Terminal_instance_t);
+
 //Initializes the keyboard
 extern void initialize_keyboard();
 

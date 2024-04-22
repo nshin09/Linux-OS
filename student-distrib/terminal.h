@@ -1,6 +1,17 @@
 #ifndef TERMINAL_H_
 #define TERMINAL_H_
 
+// typedef struct  Terminal_t {
+//     uint32_t Started : 1; //1 if the terminal has been started (even if it has since been quit)
+//     uint32_t Active : 1;
+//     uint32_t Vidmem_location;
+//     uint32_t EBP;
+//     uint32_t ESP;
+//     uint32_t EIP;
+//     int cursor_x;
+//     int cursor_y;
+// } Terminal_t;
+
 // int rtc_mode;
 #include "types.h"
 // opens the terminal
