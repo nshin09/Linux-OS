@@ -40,11 +40,14 @@ fop_table_t rtc_fop;
 fop_table_t directory_fop;
 fop_table_t file_fop;
 
+extern void Set_PID(int new_PID);
+extern int Get_PID();
 
 //System calls needed for cp3
 
 int32_t halt(uint8_t status);
 extern int32_t execute(const uint8_t* command);
+extern int32_t execute_local(const uint8_t* command, uint8_t BaseTerminal);
 int32_t read(int32_t fd, void* buf, int32_t nbytes);
 int32_t write(int32_t fd, const void* buf, int32_t nbytes);
 int32_t open(const uint8_t* filename);

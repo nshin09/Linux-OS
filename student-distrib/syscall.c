@@ -14,6 +14,15 @@ int ARGS_SIZE = 128;
 
 int PID_ARRAY[6] = {0,0,0,0,0,0};
 uint8_t args[128] = {'\0'};
+
+void Set_PID(int new_PID){
+    PID = new_PID;
+}
+
+int Get_PID(){
+    return PID;
+}
+
 /* void: initialize_fop()
  * Inputs: none
  * Return Value: none
@@ -98,9 +107,9 @@ int32_t halt (uint8_t status){
 
     Flush_TLB(page_directory[32].addr);
     //Set EBP and ESP to value saved in PCB
-    if(PID == 0 && PCB->Parent_PID==0){
+    if(PID == PCB->Parent_PID){
         printf("Cannot Exit Base Shell. Restarting\n");
-        execute((uint8_t*)"shell");
+        execute_local((uint8_t*)"shell", 1);
     }
 
     PID = PCB->Parent_PID;
@@ -145,6 +154,10 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
     }
 
     PCB_t* PCB = Get_PCB_ptr(PID);
+
+    //DEBUG
+    printf("%d %d ", PCB->PID, PCB->Parent_PID);
+
     fdt_entry_t file = PCB->FDT[fd];
     //Call fop table's write
     int ret = file.fop_table_ptr->write(fd, buf, nbytes);
@@ -302,12 +315,16 @@ int32_t sigreturn (void){
     return 0;
 }
 
+int32_t execute (const uint8_t* command){
+    return execute_local(command, 0);
+}
+
 /* int32: execute (const uint8_t* command)
  * Inputs: const uint8_t* command - space seperated command user enters in to terminal to be executed
    Return Value: 0 if successful, else returns -1
    Function: loads and 'executes' new program, based on input command. hands control of processor to new command. undone by halt.
 .*/
-int32_t execute (const uint8_t* command){
+int32_t execute_local (const uint8_t* command, uint8_t BaseTerminal){
     cli();
     //Parse comman into individual arguments
     int spaces[32]={0};         // The index of all the spaces in command
@@ -415,6 +432,10 @@ int32_t execute (const uint8_t* command){
     PCB->Active = 1;
     PCB->PID = PID;
     PCB->Parent_PID = possibleParent; //True for 3.3 but not generally
+
+    if(BaseTerminal == 1){
+        PCB->Parent_PID = PCB->PID;
+    }
     // printf("%d", PCB->Parent_PID);
     // printf("\nPID: %d     Parent PID: %d\n", PID, PCB->Parent_PID);
 

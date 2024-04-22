@@ -189,7 +189,7 @@ void entry(unsigned long magic, unsigned long addr) {
     
 #endif
     /* Execute the first program ("shell") ... */
-    execute((uint8_t*)("shell"));
+    execute_local((uint8_t*)("shell"), 1);
     /* Clear the screen. */
     // clear();
 

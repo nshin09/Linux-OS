@@ -3,6 +3,8 @@
 #include "keyboard.h"
 #include "terminal.h"
 #include "x86_desc.h"
+#include "syscall_asm.h"
+#include "paging.h"
 
 Terminal_instance_t Terminals[3];
 
@@ -319,6 +321,9 @@ void keyboard_handler(){
             //Save current Active terminals EBP, ESP, etc.
             Terminals[ActiveTerminal].cursor_x = getScreenX();
             Terminals[ActiveTerminal].cursor_y = getScreenY();
+            Terminals[ActiveTerminal].EBP = Get_EBP();
+            Terminals[ActiveTerminal].ESP = Get_ESP();
+            Terminals[ActiveTerminal].PID = Get_PID();
 
             //Change ActiveTerminal
             if(Scancode == 0x3b){ 
@@ -333,11 +338,6 @@ void keyboard_handler(){
             else if(Scancode == 0x3d){ 
                 ActiveTerminal = 2; 
             }
-            
-            //If it's the first time in this terminal, start the terminal
-            if(Terminals[ActiveTerminal].Started == 0){
-                StartTerminal(ActiveTerminal);
-            }
 
             //Copy the new terminal's memory into active memory
             memcpy((void*)0xB8000, (void*)(0xB9000 + ActiveTerminal*0x1000), 0x1000);
@@ -351,7 +351,30 @@ void keyboard_handler(){
             // printf("Terminal 2 has x %d, y %d\n", Terminals[2].cursor_x, Terminals[2].cursor_y);
             //reset_scrn_xy();
 
+            Set_PID(Terminals[ActiveTerminal].PID);
+
+            //Change Paging
+            // int CURR_MEM = 0x800000; //8 Megabyes
+            // int pd_idx = 32;
+            // page_directory[pd_idx].addr = (CURR_MEM + (Terminals[ActiveTerminal].PID)*0x400000)>> 12;
+            // // do {                                    \
+            // //     asm volatile ("call flush_tlb"      \
+            // //     );                                  \
+            // // } while (0);
+            // flush_tlb();
+
+            //printf("Switching pre-EOI");
             send_eoi(0x01);
+
+            // If it's the first time in this terminal, start the terminal
+            // and call execute
+            if(Terminals[ActiveTerminal].Started == 0){
+                StartTerminal(ActiveTerminal);
+                execute_local((uint8_t*)"shell", 1);
+            }
+
+            Set_EBP_ESP(Terminals[ActiveTerminal].EBP, Terminals[ActiveTerminal].ESP);
+
             return;
         }
     }

@@ -66,6 +66,7 @@ typedef struct Terminal_instance {
     uint32_t EIP;
     int cursor_x;
     int cursor_y;
+    uint8_t PID;
 } Terminal_instance_t;
 
 // extern Terminal_instance_t Terminals;
