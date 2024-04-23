@@ -6,7 +6,7 @@
 #include "syscall_asm.h"
 #include "paging.h"
 #include "syscall.h"
-Terminal_instance_t Terminals[3];
+
 
 void SetupTerminals(Terminal_instance_t empty){
     Terminals[0] = empty;

@@ -155,7 +155,9 @@ void entry(unsigned long magic, unsigned long addr) {
         empty_terminal.EIP = 0;
         empty_terminal.cursor_x = 0;
         empty_terminal.cursor_y = 0;
-
+        empty_terminal.rtc_rate = 1;
+        empty_terminal.rtc_ticks = 1;
+        empty_terminal.rtc_mode = 0;
         // Terminals = empty_terminal;
         // Terminals[1] = empty_terminal;
         // Terminals[2] = empty_terminal;

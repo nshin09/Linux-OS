@@ -2,6 +2,8 @@
 #include "i8259.h"
 #include "lib.h"
 #include "keyboard.h"
+#include "terminal.h"
+#include "x86_desc.h"
 /* void: rtc_init(void)
  * Inputs: void
  * Return Value: void
@@ -20,8 +22,8 @@ void rtc_init()
     outb(prev | 0x40, 0x71);	// write the previous value ORed with 0x40. This turns on bit 6 of register B
     // sti();
     enable_irq(0x08); // this command enables the irq_8 that was just initialized
-    rtc_rate = 1; // default frequency 1024/1024;
-    rtc_ticks = rtc_rate;
+    // rtc_rate = 1; // default frequency 1024/1024;
+    // rtc_ticks = rtc_rate;
 }
 /* void: rtc_handler(void)
  * Inputs: void
@@ -32,12 +34,12 @@ void rtc_handler()
     // cli();
     outb(0x8C, 0x70);	// select register C
     inb(0x71);		
-    rtc_ticks--;
-    if(rtc_ticks == 0)
+    Terminals[ActiveTerminal].rtc_ticks--;
+    if(Terminals[ActiveTerminal].rtc_ticks == 0)
     {
         rtc_int = 1;
-        rtc_ticks = rtc_rate;
-        if(rtc_mode == 1)
+        Terminals[ActiveTerminal].rtc_ticks = Terminals[ActiveTerminal].rtc_rate;
+        if(Terminals[ActiveTerminal].rtc_mode == 1)
         {
             gotNewLine = 1;
         }
@@ -55,8 +57,8 @@ void rtc_handler()
  * Function: Initializes the default freq to 2HZ. */
 int32_t rtc_open(const uint8_t* filename) {
     // rtc_change_rate(2); // 2 represents the minimum frequency
-    rtc_rate = 512; // 512 represents a frequency of 2 hertz. 
-    rtc_ticks = rtc_rate; 
+    Terminals[ActiveTerminal].rtc_rate = 512; // 512 represents a frequency of 2 hertz. 
+    Terminals[ActiveTerminal].rtc_ticks = Terminals[ActiveTerminal].rtc_rate; 
     return 0;
 }
 /* void rtc_close (int32_t fd) 
@@ -90,8 +92,8 @@ int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes) {
     {
         return -1;
     }
-    rtc_rate = 1024 / ((uint32_t*)buf)[0]; // 1024 / frequency;
-    rtc_ticks = rtc_rate;
+    Terminals[ActiveTerminal].rtc_rate = 1024 / ((uint32_t*)buf)[0]; // 1024 / frequency;
+    Terminals[ActiveTerminal].rtc_ticks = Terminals[ActiveTerminal].rtc_rate;
     
     return 0;
 }

@@ -30,7 +30,7 @@ char findCapsChar(int c);
 //Buffers to hold what has been typed on the keyboard
 char keyboard_buffer[3][128]; 
 char terminal_buf[128];
-
+Terminal_instance_t Terminals[3];
 //Index of the first unfilled space in the keyboard_buffer
 int32_t keyboard_buffer_index;
 int32_t KBI_for_read;

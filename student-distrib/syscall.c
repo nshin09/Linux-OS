@@ -6,6 +6,7 @@
 #include "rtc.h"
 #include "terminal.h"
 #include "x86_desc.h"
+#include "keyboard.h"
 //Moved these variables to this file cause they weren't being seen properly
 const int CURR_MEM = 0x800000; //8 Megabyes
 const int MAX_FILE_VALUE = 40000;
@@ -179,7 +180,7 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
     PCB_t* PCB = Get_PCB_ptr(PID);
 
     //DEBUG
-    printf("%d %d ", PCB->PID, PCB->Parent_PID);
+    // printf("%d %d ", PCB->PID, PCB->Parent_PID);
 
     fdt_entry_t file = PCB->FDT[fd];
     //Call fop table's write
@@ -226,15 +227,15 @@ int32_t open (const uint8_t* filename){
             int fileType = temp_dentry.file_type;
             if (fileType == 0){
                 PCB->FDT[i].fop_table_ptr = &rtc_fop;
-                rtc_mode = 1;            
+                Terminals[ActiveTerminal].rtc_mode = 1;            
             }
             if (fileType == 1){
                 PCB->FDT[i].fop_table_ptr = &directory_fop;
-                rtc_mode = 0;    
+                Terminals[ActiveTerminal].rtc_mode = 0;    
             }
             if (fileType == 2){
                 PCB->FDT[i].fop_table_ptr = &file_fop;
-               rtc_mode = 0;    
+               Terminals[ActiveTerminal].rtc_mode = 0;    
             }          
             break;
         }
@@ -269,7 +270,7 @@ int32_t close (int32_t fd){
     PCB->FDT[fd].file_position = 0;
     int closed = PCB->FDT[fd].fop_table_ptr->close(fd);
     PCB->FDT[fd].fop_table_ptr = &null_fop;
-    rtc_mode = 0;   
+    Terminals[ActiveTerminal].rtc_mode = 0; 
     return closed;
 }
 

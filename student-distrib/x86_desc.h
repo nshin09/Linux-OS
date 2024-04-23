@@ -67,6 +67,9 @@ typedef struct Terminal_instance {
     int cursor_x;
     int cursor_y;
     uint8_t PID;
+    int rtc_rate;
+    int rtc_ticks;
+    int rtc_mode;
 } Terminal_instance_t;
 
 // extern Terminal_instance_t Terminals;
