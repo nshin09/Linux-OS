@@ -5,7 +5,7 @@
 #include "x86_desc.h"
 #include "syscall_asm.h"
 #include "paging.h"
-
+#include "syscall.h"
 Terminal_instance_t Terminals[3];
 
 void SetupTerminals(Terminal_instance_t empty){
@@ -315,7 +315,7 @@ void keyboard_handler(){
     if(alt == 1){
         if((Scancode == 0x3b && ActiveTerminal != 0) || (Scancode == 0x3c && ActiveTerminal != 1)|| (Scancode == 0x3d && ActiveTerminal != 2)){
             //Save active video memory to the active terminal's memory
-            void* ActiveMem = 0xB9000 + ActiveTerminal*0x1000;
+            void* ActiveMem = (void*)(0xB9000 + ActiveTerminal*0x1000);
             memcpy(ActiveMem, (void*)0xB8000, 0x1000);
             
             //Save current Active terminals EBP, ESP, etc.
@@ -357,9 +357,9 @@ void keyboard_handler(){
             // int CURR_MEM = 0x800000; //8 Megabyes
             // int pd_idx = 32;
             // page_directory[pd_idx].addr = (CURR_MEM + (Terminals[ActiveTerminal].PID)*0x400000)>> 12;
-            // // do {                                    \
-            // //     asm volatile ("call flush_tlb"      \
-            // //     );                                  \
+            // // do {                                    
+            // //     asm volatile ("call flush_tlb"      
+            // //     );                                  
             // // } while (0);
             // flush_tlb();
 
