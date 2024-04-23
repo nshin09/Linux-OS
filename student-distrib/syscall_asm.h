@@ -3,7 +3,7 @@
 
 /* Calls the appropriate system called based on the passed number*/
 extern void syscall_handler();
-
+extern void flush_tlb();
 /* Saves the current context and then switches to a new program's context (Called in Execute)*/
 extern void Save_context(uint32_t ESP, uint32_t EIP);
 

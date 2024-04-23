@@ -328,7 +328,7 @@ void keyboard_handler(){
             //Change ActiveTerminal
             if(Scancode == 0x3b){ 
                 ActiveTerminal = 0;
-                printf("The key works");
+                // printf("The key works");
             }
             else if(Scancode == 0x3c){ 
                 ActiveTerminal = 1; 
@@ -354,14 +354,6 @@ void keyboard_handler(){
             Set_PID(Terminals[ActiveTerminal].PID);
 
             //Change Paging
-            // int CURR_MEM = 0x800000; //8 Megabyes
-            // int pd_idx = 32;
-            // page_directory[pd_idx].addr = (CURR_MEM + (Terminals[ActiveTerminal].PID)*0x400000)>> 12;
-            // // do {                                    
-            // //     asm volatile ("call flush_tlb"      
-            // //     );                                  
-            // // } while (0);
-            // flush_tlb();
 
             //printf("Switching pre-EOI");
             send_eoi(0x01);
@@ -373,7 +365,11 @@ void keyboard_handler(){
                 Open_PID(ActiveTerminal);
                 execute_local((uint8_t*)"shell", 1);
             }
+            int pd_idx = 32; //The page directory index of virtual address 128MB
+            page_directory[pd_idx].addr = (0x800000 + (Terminals[ActiveTerminal].PID)*0x400000)>> 12;
+            flush_tlb();
 
+            tss.esp0 = 0x800000 - (8192*Terminals[ActiveTerminal].PID);
             Set_EBP_ESP(Terminals[ActiveTerminal].EBP, Terminals[ActiveTerminal].ESP);
 
             return;
