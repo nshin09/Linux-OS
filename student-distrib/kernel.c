@@ -189,6 +189,8 @@ void entry(unsigned long magic, unsigned long addr) {
     
 #endif
     /* Execute the first program ("shell") ... */
+    Reserve_PID(1);
+    Reserve_PID(2);
     execute_local((uint8_t*)("shell"), 1);
     /* Clear the screen. */
     // clear();

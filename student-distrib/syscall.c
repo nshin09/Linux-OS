@@ -23,6 +23,29 @@ int Get_PID(){
     return PID;
 }
 
+int Reserve_PID(int idx){
+    if(PID_ARRAY[idx] == 0){
+        PID_ARRAY[idx] = 2;
+        return 1;
+    }
+    else{
+        return -1;
+    }
+}
+
+int Open_PID(int idx){
+    if(PID_ARRAY[idx] == 2){
+        PID_ARRAY[idx] = 0;
+        return 1;
+    }
+    else if(PID_ARRAY[idx] == 0){
+        return 0;
+    }
+    else{
+        return -1;
+    }
+}
+
 /* void: initialize_fop()
  * Inputs: none
  * Return Value: none

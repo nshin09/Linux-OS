@@ -19,7 +19,7 @@ keyboard.o: keyboard.c lib.h types.h i8259.h keyboard.h x86_desc.h \
 lib.o: lib.c lib.h types.h
 paging.o: paging.c paging.h types.h paging_asm.h lib.h x86_desc.h
 pit.o: pit.c pit.h types.h idt.h lib.h i8259.h syscall.h file_system.h \
-  multiboot.h
+  multiboot.h keyboard.h x86_desc.h
 rtc.o: rtc.c rtc.h types.h i8259.h lib.h keyboard.h x86_desc.h
 syscall.o: syscall.c syscall.h types.h file_system.h lib.h multiboot.h \
   syscall_asm.h paging.h rtc.h terminal.h x86_desc.h

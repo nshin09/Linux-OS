@@ -4,6 +4,7 @@
 #include "lib.h"
 #include "i8259.h"
 #include "syscall.h"
+#include "keyboard.h"
 
 int pit_ticks;
 int num_shells = 0;
@@ -16,6 +17,7 @@ void pit_init()
     outb(divisor >> 8, 0x40); /* Set high byte of divisor */
     pit_ticks = 18; // 18 ticks for a second
     enable_irq(0);    // 0 is the irq number for pit
+    num_shells = 0; //1 shell is created in kernel.c
 }
 
 void pit_handler()
@@ -27,18 +29,22 @@ void pit_handler()
     //     execute((uint8_t*)("shell"));
     //     send_eoi(0);
     // }
-    // if(num_shells < 3){
-    //     num_shells++;
-    //     //Check what terminal and execute in the right place
-    //     execute((uint8_t*)"shell");
-        
-    //     send_eoi(0);
-    //     return;
-    // }
+    
     pit_ticks--;
     if(pit_ticks == 0)
     {
         pit_ticks = DEFAULT_TICKS;
     }
+
+    // if(num_shells < 3){
+    //     num_shells++;
+    //     printf("PIT %d; PID %d\n", num_shells, Get_PID());
+    //     // //Check what terminal and execute in the right place
+    //     // send_eoi(0);
+    //     // StartTerminal(num_shells);
+    //     // execute_local((uint8_t*)"shell", 1);
+    //     // return;
+    // }
+
     send_eoi(0);
 }

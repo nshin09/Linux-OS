@@ -370,6 +370,7 @@ void keyboard_handler(){
             // and call execute
             if(Terminals[ActiveTerminal].Started == 0){
                 StartTerminal(ActiveTerminal);
+                Open_PID(ActiveTerminal);
                 execute_local((uint8_t*)"shell", 1);
             }
 

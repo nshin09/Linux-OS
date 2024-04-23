@@ -43,6 +43,9 @@ fop_table_t file_fop;
 extern void Set_PID(int new_PID);
 extern int Get_PID();
 
+extern int Reserve_PID(int idx);
+extern int Open_PID(int idx);
+
 //System calls needed for cp3
 
 int32_t halt(uint8_t status);
