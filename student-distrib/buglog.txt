@@ -105,3 +105,5 @@ Grep prints "391OS>" twice after running
     try to run an input that was passed while it's running, and not recognize things that were passed before it started running.
 
 Checkpoint 5:
+RTC : Pingpong was going at 1/3 of the normal speed when it would be opened on multiple terminals.
+The fix to this was to decrement the ticks for rtc for each active terminal instead of only one of the active terminals.
