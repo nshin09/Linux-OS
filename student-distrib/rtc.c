@@ -11,7 +11,7 @@ int rtc_int[3] = {0,0,0};
  * Function: Initialize rtc, used osDev for documentation */
 void rtc_init()
 {
-    int i;
+    // int i;
     outb(0x8A, 0x70);
     // outb(0x20,0x71);
     // sti();

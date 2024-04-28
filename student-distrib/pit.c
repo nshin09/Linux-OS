@@ -10,6 +10,12 @@
 int pit_ticks;
 int num_shells = 0;
 
+/* void pit_init(void)
+ * Inputs: void
+ * Return Value: void
+ * Function: initializes PIT by filling in needed divisor vars
+             and enables interupts for pit*/
+
 void pit_init()
 {
     int divisor = RATE / HZ;       /* Calculate our divisor */
@@ -20,6 +26,12 @@ void pit_init()
     enable_irq(0);    // 0 is the irq number for pit
     num_shells = 0; //1 shell is created in kernel.c
 }
+
+/* void pit_handler(void)
+ * Inputs: void
+ * Return Value: void
+ * Function: contains logic needed for PIT ticks, and schedules terminals by calling switchterminal pased on ticks 
+ */
 
 void pit_handler()
 {

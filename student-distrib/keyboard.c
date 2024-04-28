@@ -7,6 +7,12 @@
 #include "paging.h"
 #include "syscall.h"
 
+/* void SetupTerminals();
+ * Inputs: Terminal_instance_t empty
+ * Return Value: None
+ * Function: Sets global array of 3 terminals to an empty placeholder terminal. 
+   Zeroes out vars used for scheduling.
+ */
 
 void SetupTerminals(Terminal_instance_t empty){
     Terminals[0] = empty;

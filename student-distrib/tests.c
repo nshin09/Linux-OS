@@ -329,6 +329,11 @@ int file_dne()
 }
 /* Checkpoint 3 tests */
 
+/* void: Basic_syscall_test()
+ * Inputs: None
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: Check if syscalls can be made. */
+
 int Basic_syscall_test()
 {
 	TEST_HEADER;
@@ -349,6 +354,11 @@ int Basic_syscall_test()
 	execute((uint8_t*)Filename2);
 	return PASS;
 }
+
+/* void: Get_args_test()
+ * Inputs: None
+ * Return Value: FAIL if FAIL, SUCCESS if worked
+ * Function: Check if args can be parsed. */
 
 int Get_args_test(){
 	TEST_HEADER;

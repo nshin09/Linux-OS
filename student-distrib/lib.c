@@ -60,6 +60,10 @@ void move_line_up(){
     update_cursor(screen_x,screen_y);
 }
 
+/* void move_line_up();
+ * Inputs: int x, int y
+ * Return Value: None
+ * Function: updates cursor with screenx/y vals. */
 void SetXY(int x, int y){
     screen_x = x;
     screen_y = y;
@@ -653,11 +657,18 @@ void test_interrupts(void) {
         video_mem[i << 1]++;
     }
 }
-
+/* void reset_scrn_xy(void)
+ * Inputs: void
+ * Return Value: void
+ * Function: sets local screen vars to 0 */
 void reset_scrn_xy(){
     screen_x = 0;
     screen_y = 0;
 }
+/* void update_cursor(int x, int y)
+ * Inputs: int x, int y
+ * Return Value: void
+ * Function: calculates new pos and updates cursor accordingly */
 void update_cursor(int x, int y)
 {
     int32_t pos = screen_y * NUM_COLS + screen_x;
