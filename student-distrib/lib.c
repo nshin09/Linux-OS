@@ -2,6 +2,8 @@
  * vim:ts=4 noexpandtab */
 
 #include "lib.h"
+#include "terminal.h"
+#include "keyboard.h"
 
 #define VIDEO       0xB8000
 #define NUM_COLS    80
@@ -180,7 +182,7 @@ format_char_switch:
 
                         /* Print a single character */
                         case 'c':
-                            putc((uint8_t) *((int32_t *)esp));
+                            putc_screen((uint8_t) *((int32_t *)esp));
                             esp++;
                             break;
 
@@ -213,7 +215,7 @@ format_char_switch:
 int32_t puts(int8_t* s) {
     register int32_t index = 0;
     while (s[index] != '\0') {
-        putc(s[index]);
+        putc_screen(s[index]); //WAS PUTC
         index++;
     }
     return index;
@@ -222,24 +224,79 @@ int32_t puts(int8_t* s) {
 /* void putc(uint8_t c);
  * Inputs: uint_8* c = character to print
  * Return Value: void
- *  Function: Output a character to the console */
+ *  Function: Output a character to the memory of the ActiverTerminal*/
 void putc(uint8_t c) {
+    if(ActiveTerminal != VisibleTerminal){
+        putc_to_terminal(c, ActiveTerminal+1);
+    }
+    else{
+        putc_screen(c);
+    }
+}
+
+/* void putc_vis(uint8_t c);
+ * Inputs: uint_8* c = character to print to visible terminal
+ * Return Value: void
+ *  Function: Output a character to the console */
+void putc_vis(uint8_t c){
+    /* This is a remnant from when VisibleTerminal wasn't always being
+       shown on the screen. It still exists in case any functions are still
+       calling it, but it is the same as putc_screen(uint8_t c). */
+
+    // if(VisibleTerminal != ActiveTerminal){
+    //     putc_to_terminal(c, VisibleTerminal+1);
+    // }
+    // else{
+        putc_screen(c);
+    // }
+}
+
+/* void putc_screen(uint8_t c);
+ * Inputs: uint_8* c = character to print to screen
+ * Return Value: void
+ *  Function: Output a character to the console */
+void putc_screen(uint8_t c){
+    putc_to_terminal(c, 0);
+}
+
+/* void putc_to_terminal(uint8_t c, int T);
+ * Inputs: uint_8* c = character to print
+ *         int T = 1 indexed Terminal to print onto, or 0 to print to screen
+ * Return Value: void
+ * Function: Output a character to the provided terminal */
+void putc_to_terminal(uint8_t c, int T){
+    int offset = (T)*0x1000; 
+    int T_ix = T-1;
+    int _x = (T_ix < 0) ? screen_x : Terminals[T_ix].cursor_x;
+    int _y = (T_ix < 0) ? screen_y : Terminals[T_ix].cursor_y;
+
     if(c == '\n' || c == '\r') {
-        screen_y++;
-        screen_x = 0;
+        _y++;
+        _x = 0;
+        if(T_ix < 0){
+            screen_y++;
+            screen_x = 0;
+        }
+        else{
+            Terminals[T_ix].cursor_y++;
+            Terminals[T_ix].cursor_x = 0; 
+        }
         textOverflow = 0;
 
     } else {
         //make scrolling by looping thru vid mem and printing row below curr ie. 0th row <- 1st row
 
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-        screen_x++;
+        *(uint8_t *)(video_mem + offset + ((NUM_COLS * _y + _x) << 1)) = c;
+        *(uint8_t *)(video_mem + offset + ((NUM_COLS * _y + _x) << 1) + 1) = ATTRIB;
+        
+        _x++;
+        if(T_ix < 0){ screen_x++; }
+        else{ Terminals[T_ix].cursor_x++; }
     }
     //check if we need to scroll
-    if(screen_y >= NUM_ROWS || (screen_y >= NUM_ROWS-1 && screen_x >= NUM_COLS))
+    if(_y >= NUM_ROWS || (_y >= NUM_ROWS-1 && _x >= NUM_COLS))
     {
-        if(screen_x == NUM_COLS){
+        if(_x == NUM_COLS){
             textOverflow++;
         }
         int r;
@@ -248,36 +305,58 @@ void putc(uint8_t c) {
         for(r = 0; r < NUM_ROWS; r++){
             for(cc = 0; cc < NUM_COLS; cc++){
                 if (r == NUM_ROWS-1){
-                    *(uint8_t *)(video_mem + ((NUM_COLS * r + cc) << 1)) = '\0';
+                    *(uint8_t *)(video_mem + offset + ((NUM_COLS * r + cc) << 1)) = '\0';
                 }
                 else{
-                *(uint8_t *)(video_mem + ((NUM_COLS * r + cc) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS * (r+1) + cc) << 1));
+                *(uint8_t *)(video_mem + offset + ((NUM_COLS * r + cc) << 1)) = *(uint8_t *)(video_mem + offset + ((NUM_COLS * (r+1) + cc) << 1));
                 }
             }
         }
 
         //at end set col = 0 and row = last row
-        screen_x = 0;
-        if (screen_y >= NUM_ROWS){
-            screen_y--;
+        _x = 0;
+        if(T_ix < 0){ screen_x = 0; }
+        else{ Terminals[T_ix].cursor_x = 0; }
+
+        if (_y >= NUM_ROWS){
+            _y = NUM_ROWS-1;
+            if(T_ix < 0){ screen_y = NUM_ROWS-1; }
+            else{ Terminals[T_ix].cursor_y = NUM_ROWS-1; }
         }
         // screen_y = NUM_ROWS-1;
     }
     else
     {
     //if at end of x axis we have overflow
-        if (screen_x == NUM_COLS)
+        if (_x == NUM_COLS)
         {
-            screen_y++;
-            screen_x = 0;
+            _y++;
+            _x = 0;
+            if(T_ix < 0){ 
+                screen_y++;
+                screen_x = 0;
+            }
+            else{ 
+                Terminals[T_ix].cursor_y++; 
+                Terminals[T_ix].cursor_x = 0;
+            }
             textOverflow ++;
         }
         else{
-            screen_x %= NUM_COLS;
+            _x %= NUM_COLS;
+            if(T_ix < 0){ screen_x %= NUM_COLS; }
+            else{ Terminals[T_ix].cursor_x %= NUM_COLS; }
         }
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+
+        _y = (_y + (_x / NUM_COLS)) % NUM_ROWS;
+        if(T_ix < 0){ screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS; }
+        else{ Terminals[T_ix].cursor_y = (_y + (_x / NUM_COLS)) % NUM_ROWS; }
+        
     }
-    update_cursor(screen_x,screen_y);
+
+    if(T_ix < 0){
+        update_cursor(screen_x, screen_y);
+    }
 }
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);

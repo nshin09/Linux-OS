@@ -193,7 +193,7 @@ int terminal_test()
 		keyboard_buffer[0][i] = 'a';
 		
 	}
-	keyboard_buffer_index = 10;
+	keyboard_buffer_index[0] = 10;
 
 	printf("\n");
 	printf("%d characters in keyboard buffer: ", 10);
@@ -212,7 +212,7 @@ int terminal_test()
 	printf("terminal buffer: ");
 	terminal_write(0, buffa, 100000);
 	printf("\n");
-	keyboard_buffer_index = 0;
+	keyboard_buffer_index[0] = 0;
 	return PASS;
 }
 

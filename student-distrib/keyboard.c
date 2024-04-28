@@ -15,6 +15,8 @@ void SetupTerminals(Terminal_instance_t empty){
 
     StartTerminal(0);
     ActiveTerminal = 0;
+    VisibleTerminal = 0;
+    ScheduledTerminal = 0;
 }
 
 void StartTerminal(int idx){
@@ -30,14 +32,23 @@ void StartTerminal(int idx){
  */
 void initialize_keyboard(){
     enable_irq(1);
-    keyboard_buffer_index = 0;
+
+    keyboard_buffer_index[0] = 0;
+    keyboard_buffer_index[1] = 0;
+    keyboard_buffer_index[2] = 0;
+
     caps_lock = 0;
     shift = 0;
     ctrl = 0;
     alt = 0;
     textOverflow = 0;
-    gotNewLine = 0;
+
+    gotNewLine[0] = 0;
+    gotNewLine[1] = 0;
+    gotNewLine[2] = 0;
+
     ActiveTerminal = 0;
+    VisibleTerminal = 0;
 }
 
 /* char findChar(int c);
@@ -313,64 +324,19 @@ void keyboard_handler(){
     SetFlag = check_flags(Scancode);
     //Switch Terminal
     if(alt == 1){
-        if((Scancode == 0x3b && ActiveTerminal != 0) || (Scancode == 0x3c && ActiveTerminal != 1)|| (Scancode == 0x3d && ActiveTerminal != 2)){
-            //Save active video memory to the active terminal's memory
-            void* ActiveMem = (void*)(0xB9000 + ActiveTerminal*0x1000);
-            memcpy(ActiveMem, (void*)0xB8000, 0x1000);
+        if((Scancode == 0x3b && VisibleTerminal != 0) || (Scancode == 0x3c && VisibleTerminal != 1)|| (Scancode == 0x3d && VisibleTerminal != 2)){
             
-            //Save current Active terminals EBP, ESP, etc.
-            Terminals[ActiveTerminal].cursor_x = getScreenX();
-            Terminals[ActiveTerminal].cursor_y = getScreenY();
-            Terminals[ActiveTerminal].EBP = Get_EBP();
-            Terminals[ActiveTerminal].ESP = Get_ESP();
-            Terminals[ActiveTerminal].PID = Get_PID();
-
-            //Change ActiveTerminal
+            int SwitchTo = 0;
             if(Scancode == 0x3b){ 
-                ActiveTerminal = 0;
-                // printf("The key works");
-            }
+                SwitchTo = 0; }
             else if(Scancode == 0x3c){ 
-                ActiveTerminal = 1; 
-                // clear();
-                // execute((uint8_t*)("shell"));
-            }
-            else if(Scancode == 0x3d){ 
-                ActiveTerminal = 2; 
-            }
+                SwitchTo = 1; }
+            else if(Scancode == 0x3d){
+                SwitchTo = 2; }
 
-            //Copy the new terminal's memory into active memory
-            memcpy((void*)0xB8000, (void*)(0xB9000 + ActiveTerminal*0x1000), 0x1000);
+            //VisibleTerminal = SwitchTo;
 
-            //set new Active terminals EBP, ESP, etc.
-
-            //reset cursor
-            SetXY(Terminals[ActiveTerminal].cursor_x, Terminals[ActiveTerminal].cursor_y);
-            // printf("Terminal 0 has x %d, y %d\n", Terminals[0].cursor_x, Terminals[0].cursor_y);
-            // printf("Terminal 1 has x %d, y %d\n", Terminals[1].cursor_x, Terminals[1].cursor_y);
-            // printf("Terminal 2 has x %d, y %d\n", Terminals[2].cursor_x, Terminals[2].cursor_y);
-            //reset_scrn_xy();
-
-            Set_PID(Terminals[ActiveTerminal].PID);
-
-            //Change Paging
-
-            //printf("Switching pre-EOI");
-            send_eoi(0x01);
-
-            // If it's the first time in this terminal, start the terminal
-            // and call execute
-            if(Terminals[ActiveTerminal].Started == 0){
-                StartTerminal(ActiveTerminal);
-                Open_PID(ActiveTerminal);
-                execute_local((uint8_t*)"shell", 1);
-            }
-            int pd_idx = 32; //The page directory index of virtual address 128MB
-            page_directory[pd_idx].addr = (0x800000 + (Terminals[ActiveTerminal].PID)*0x400000)>> 12;
-            flush_tlb();
-
-            tss.esp0 = 0x800000 - (8192*Terminals[ActiveTerminal].PID);
-            Set_EBP_ESP(Terminals[ActiveTerminal].EBP, Terminals[ActiveTerminal].ESP);
+            SwitchVisible(SwitchTo);
 
             return;
         }
@@ -380,7 +346,7 @@ void keyboard_handler(){
     {
         clear();
         reset_scrn_xy();
-        memset(keyboard_buffer[ActiveTerminal], '\0', sizeof(keyboard_buffer[ActiveTerminal]));
+        memset(keyboard_buffer[VisibleTerminal], '\0', sizeof(keyboard_buffer[VisibleTerminal]));
         send_eoi(0x01); // need to send eoi to irq_1
         return;
 
@@ -388,43 +354,51 @@ void keyboard_handler(){
     if (Scancode == 0x0F){  //scancode for tab button. put 4 spaces
         int i;
         for (i = 0; i < 3; i++){
-            putc(' ');
+            putc_screen(' ');
         }
     }
 
     if(Scancode == 0x1C) // 1C is the "Enter " scancode
     {
-        if(keyboard_buffer_index >= 128)
+        if(keyboard_buffer_index[VisibleTerminal] >= 128)
         {
-            keyboard_buffer[ActiveTerminal][127] = '\n'; // 127 is the last index of buffer 
-            keyboard_buffer_index = 127;
+            keyboard_buffer[VisibleTerminal][127] = '\n'; // 127 is the last index of buffer 
+            keyboard_buffer_index[VisibleTerminal] = 127;
         }
         else
         {
-             keyboard_buffer[ActiveTerminal][keyboard_buffer_index] = '\n';
+             keyboard_buffer[VisibleTerminal][keyboard_buffer_index[VisibleTerminal]] = '\n';
              
         }
         // keyboard_buffer_index++;
         //terminal_test();
-        putc('\n');
+        putc_screen('\n');
         //Prints the Keyboard buffer on enter pressed
         // terminal_read(0, terminal_buf, keyboard_buffer_index);
         // terminal_write(0, terminal_buf, keyboard_buffer_index);
 
         //Set read function's buffer index and reset buffer index
-        KBI_for_read = keyboard_buffer_index;
-        keyboard_buffer_index = 0;
+        KBI_for_read = keyboard_buffer_index[VisibleTerminal];
+        keyboard_buffer_index[VisibleTerminal] = 0;
 
         textOverflow = 0;
-        gotNewLine = 1;
+        gotNewLine[VisibleTerminal] = 1;
+        // if(VisibleTerminal != ActiveTerminal){
+        //     putc_screen(' ');
+        //     putc_screen('!');
+        //     putc_screen('!');
+        //     putc_screen('!');
+        //     putc_screen(' ');
+        // }
+        // printf("GNL %d:%d:%d \n", gotNewLine[0], gotNewLine[1], gotNewLine[2]);
 
     }
-    else if(Scancode == 0x0E && keyboard_buffer_index > 0) //0x0E is the "backspace" scancode
+    else if(Scancode == 0x0E && keyboard_buffer_index[VisibleTerminal] > 0) //0x0E is the "backspace" scancode
     {
         //Handle Backspace in buffer
-        if(keyboard_buffer_index > 0)
+        if(keyboard_buffer_index[VisibleTerminal] > 0)
         {
-            keyboard_buffer_index--;
+            keyboard_buffer_index[VisibleTerminal]--;
         }
 
         //Handle Backspace on screen
@@ -432,7 +406,7 @@ void keyboard_handler(){
             
             move_line_up();    
             textOverflow -= 2; //-2 because putc(' ') adds one to textOverflow? Idk why or how
-            putc(' ');
+            putc_screen(' ');
             move_line_up();
 
             //Make sure textOverflow is non-negative
@@ -440,7 +414,7 @@ void keyboard_handler(){
         }
         else{
             decr_scrn_x();
-            putc(' ');
+            putc_screen(' ');
             decr_scrn_x();
         }
         
@@ -450,7 +424,7 @@ void keyboard_handler(){
     else
     {
         
-        if(keyboard_buffer_index < 128 && Scancode < 0x81) 
+        if(keyboard_buffer_index[VisibleTerminal] < 128 && Scancode < 0x81) 
         {
             char key;
             if(caps_lock == 1 && shift == 1){
@@ -474,9 +448,9 @@ void keyboard_handler(){
             }
             //Print all keys that don't affect flags
             else if(SetFlag != 1){
-                keyboard_buffer[ActiveTerminal][keyboard_buffer_index] = key;
-                keyboard_buffer_index++;
-                putc(key);
+                keyboard_buffer[VisibleTerminal][keyboard_buffer_index[VisibleTerminal]] = key;
+                keyboard_buffer_index[VisibleTerminal]++;
+                putc_screen(key);
             }
         }
         
@@ -518,4 +492,89 @@ int check_flags(int Scancode)
         default:
             return 0;
  }
+}
+
+/* void SwitchTerminal(int SwitchTo);
+ * Inputs: SwitchTo - The terminal to switch to and start executing.
+ * Return Value: None
+ * Function: Switches the function that is currently being run to the
+ *           program currently running on the given terminal.
+ */
+void SwitchTerminal(int SwitchTo){
+    // //Save active video memory to the active terminal's memory
+    // void* ActiveMem = (void*)(0xB9000 + ActiveTerminal*0x1000);
+    // memcpy(ActiveMem, (void*)0xB8000, 0x1000);
+    
+    // //Save current Active terminals EBP, ESP, etc.
+    // Terminals[ActiveTerminal].cursor_x = getScreenX();
+    // Terminals[ActiveTerminal].cursor_y = getScreenY();
+    Terminals[ActiveTerminal].EBP = Get_EBP();
+    Terminals[ActiveTerminal].ESP = Get_ESP();
+    Terminals[ActiveTerminal].PID = Get_PID();
+
+    //Change ActiveTerminal
+    ActiveTerminal = SwitchTo;
+
+    // //Copy the new terminal's memory into active memory
+    // memcpy((void*)0xB8000, (void*)(0xB9000 + ActiveTerminal*0x1000), 0x1000);
+
+    // //set new Active terminals EBP, ESP, etc.
+
+    // //reset cursor
+    // SetXY(Terminals[ActiveTerminal].cursor_x, Terminals[ActiveTerminal].cursor_y);
+    // printf("Terminal 0 has x %d, y %d\n", Terminals[0].cursor_x, Terminals[0].cursor_y);
+    // printf("Terminal 1 has x %d, y %d\n", Terminals[1].cursor_x, Terminals[1].cursor_y);
+    // printf("Terminal 2 has x %d, y %d\n", Terminals[2].cursor_x, Terminals[2].cursor_y);
+    //reset_scrn_xy();
+
+    Set_PID(Terminals[ActiveTerminal].PID);
+
+    //Change Paging
+
+    //printf("Switching pre-EOI");
+    send_eoi(0x01);
+    send_eoi(0x0);
+
+    // If it's the first time in this terminal, start the terminal
+    // and call execute
+    if(Terminals[ActiveTerminal].Started == 0){
+        StartTerminal(ActiveTerminal);
+        Open_PID(ActiveTerminal);
+        execute_local((uint8_t*)"shell", 1);
+    }
+    int pd_idx = 32; //The page directory index of virtual address 128MB
+    page_directory[pd_idx].addr = (0x800000 + (Terminals[ActiveTerminal].PID)*0x400000)>> 12;
+    flush_tlb();
+
+    tss.esp0 = 0x800000 - (8192*Terminals[ActiveTerminal].PID);
+    Set_EBP_ESP(Terminals[ActiveTerminal].EBP, Terminals[ActiveTerminal].ESP);
+}
+
+/* void SwitchVisible(int SwitchTo);
+ * Inputs: SwitchTo - The terminal to make visible.
+ * Return Value: None
+ * Function: Switches the terminal that is currently being displayed
+ *           to the provided terminal. Also allows this terminal to get
+ *           keyboard inputs.
+ */
+void SwitchVisible(int SwitchTo){
+    //Save active video memory to the active terminal's memory
+    void* ActiveMem = (void*)(0xB9000 + VisibleTerminal*0x1000);
+    memcpy(ActiveMem, (void*)0xB8000, 0x1000);
+    
+    //Save current Active terminals EBP, ESP, etc.
+    Terminals[VisibleTerminal].cursor_x = getScreenX();
+    Terminals[VisibleTerminal].cursor_y = getScreenY();
+
+    VisibleTerminal = SwitchTo;
+
+    //Copy the new terminal's memory into active memory
+    memcpy((void*)0xB8000, (void*)(0xB9000 + VisibleTerminal*0x1000), 0x1000);
+
+    //reset cursor
+    SetXY(Terminals[VisibleTerminal].cursor_x, Terminals[VisibleTerminal].cursor_y);
+
+    if(Terminals[VisibleTerminal].Started == 0){
+        SwitchTerminal(VisibleTerminal);
+    }
 }

@@ -4,12 +4,14 @@
 #include "keyboard.h"
 #include "terminal.h"
 #include "x86_desc.h"
+int rtc_int[3] = {0,0,0};
 /* void: rtc_init(void)
  * Inputs: void
  * Return Value: void
  * Function: Initialize rtc, used osDev for documentation */
 void rtc_init()
 {
+    int i;
     outb(0x8A, 0x70);
     // outb(0x20,0x71);
     // sti();
@@ -31,19 +33,45 @@ void rtc_init()
  * Function: Calls handler for rtc to generate interrupt */
 void rtc_handler()
 {
+    int i;
     // cli();
     outb(0x8C, 0x70);	// select register C
     inb(0x71);		
-    Terminals[ActiveTerminal].rtc_ticks--;
-    if(Terminals[ActiveTerminal].rtc_ticks == 0)
+    for(i = 0; i < 3; i++)
     {
-        rtc_int = 1;
-        Terminals[ActiveTerminal].rtc_ticks = Terminals[ActiveTerminal].rtc_rate;
-        if(Terminals[ActiveTerminal].rtc_mode == 1)
+        Terminals[i].rtc_ticks--;   
+        if(Terminals[i].rtc_ticks == 0)
         {
-            gotNewLine = 1;
+        rtc_int[i] = 1;
+        Terminals[i].rtc_ticks = Terminals[i].rtc_rate;
+        if(Terminals[i].rtc_mode == 1)
+        {
+            gotNewLine[i] = 1;
         }
-    }// just throw away contents
+        }
+    }
+
+    //    Terminals[ActiveTerminal].rtc_ticks--;
+    // if(Terminals[ActiveTerminal].rtc_ticks == 0)
+    // {
+    //     rtc_int = 1;
+    //     Terminals[ActiveTerminal].rtc_ticks = Terminals[ActiveTerminal].rtc_rate;
+    //     if(Terminals[ActiveTerminal].rtc_mode == 1)
+    //     {
+    //         gotNewLine[ActiveTerminal] = 1;
+    //     }
+    // }
+
+        
+    // if(Terminals[ActiveTerminal].rtc_ticks == 0)
+    // {
+    //     rtc_int = 1;
+    //     Terminals[ActiveTerminal].rtc_ticks = Terminals[ActiveTerminal].rtc_rate;
+    //     if(Terminals[ActiveTerminal].rtc_mode == 1)
+    //     {
+    //         gotNewLine[ActiveTerminal] = 1;
+    //     }
+    // }// just throw away contents
          
    
     // sti();
@@ -57,8 +85,8 @@ void rtc_handler()
  * Function: Initializes the default freq to 2HZ. */
 int32_t rtc_open(const uint8_t* filename) {
     // rtc_change_rate(2); // 2 represents the minimum frequency
-    Terminals[ActiveTerminal].rtc_rate = 512; // 512 represents a frequency of 2 hertz. 
-    Terminals[ActiveTerminal].rtc_ticks = Terminals[ActiveTerminal].rtc_rate; 
+    Terminals[ScheduledTerminal].rtc_rate = 512; // 512 represents a frequency of 2 hertz. 
+    Terminals[ScheduledTerminal].rtc_ticks = Terminals[ScheduledTerminal].rtc_rate; 
     return 0;
 }
 /* void rtc_close (int32_t fd) 
@@ -73,9 +101,9 @@ int32_t rtc_close(int32_t fd) {
  * Return Value: 0
  * Function: waits for rtc int to be held high so that it can update the screen.  */
 int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes) {
-    rtc_int = 0;
-    gotNewLine = 0;
-    while(rtc_int == 0) {
+    rtc_int[ScheduledTerminal] = 0;
+    gotNewLine[ScheduledTerminal] = 0;
+    while(rtc_int[ScheduledTerminal] == 0) {
         //wait for rtc_int to be 1
     }
     
@@ -92,8 +120,8 @@ int32_t rtc_write (int32_t fd, const void* buf, int32_t nbytes) {
     {
         return -1;
     }
-    Terminals[ActiveTerminal].rtc_rate = 1024 / ((uint32_t*)buf)[0]; // 1024 / frequency;
-    Terminals[ActiveTerminal].rtc_ticks = Terminals[ActiveTerminal].rtc_rate;
+    Terminals[ScheduledTerminal].rtc_rate = 1024 / ((uint32_t*)buf)[0]; // 1024 / frequency;
+    Terminals[ScheduledTerminal].rtc_ticks = Terminals[ScheduledTerminal].rtc_rate;
     
     return 0;
 }

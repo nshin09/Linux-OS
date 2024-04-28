@@ -5,6 +5,7 @@
 #include "i8259.h"
 #include "syscall.h"
 #include "keyboard.h"
+#include "terminal.h"
 
 int pit_ticks;
 int num_shells = 0;
@@ -34,17 +35,21 @@ void pit_handler()
     if(pit_ticks == 0)
     {
         pit_ticks = DEFAULT_TICKS;
+        //Switch Scheduled Terminal to the next Terminal that's been started
+        //int OldTerminal = ScheduledTerminal;  
+        ScheduledTerminal = (ScheduledTerminal + 1) % 3;
+        while(!Terminals[ScheduledTerminal].Started){
+            ScheduledTerminal = (ScheduledTerminal + 1) % 3;
+        }
+
+        if(ActiveTerminal != ScheduledTerminal){
+            SwitchTerminal(ScheduledTerminal);
+            send_eoi(0); 
+            return;
+        }
+        //else{ 
+        send_eoi(0); 
+        //}
     }
-
-    // if(num_shells < 3){
-    //     num_shells++;
-    //     printf("PIT %d; PID %d\n", num_shells, Get_PID());
-    //     // //Check what terminal and execute in the right place
-    //     // send_eoi(0);
-    //     // StartTerminal(num_shells);
-    //     // execute_local((uint8_t*)"shell", 1);
-    //     // return;
-    // }
-
-    send_eoi(0);
+    else{ send_eoi(0); }
 }

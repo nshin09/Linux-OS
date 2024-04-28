@@ -120,7 +120,7 @@ int32_t halt (uint8_t status){
     int i;
 
     for(i=0; i<8; i++){
-        PCB->FDT[i].flags = 0;
+        close(i);
     }
 
     //Reset TSS
@@ -137,9 +137,7 @@ int32_t halt (uint8_t status){
     }
 
     PID = PCB->Parent_PID;
-    
     Set_EBP_ESP((uint32_t)PCB->EBP, (uint32_t)PCB->ESP);
-
     return 0;
 }
 /* int32: read (int32_t fd, void* buf, int32_t nbytes)
@@ -227,15 +225,17 @@ int32_t open (const uint8_t* filename){
             int fileType = temp_dentry.file_type;
             if (fileType == 0){
                 PCB->FDT[i].fop_table_ptr = &rtc_fop;
-                Terminals[ActiveTerminal].rtc_mode = 1;            
+                Terminals[ScheduledTerminal].rtc_mode = 1; 
+                Terminals[ScheduledTerminal].rtc_rate = 1; // 512 represents a frequency of 2 hertz. 
+                Terminals[ScheduledTerminal].rtc_ticks = Terminals[ScheduledTerminal].rtc_rate;           
             }
             if (fileType == 1){
                 PCB->FDT[i].fop_table_ptr = &directory_fop;
-                Terminals[ActiveTerminal].rtc_mode = 0;    
+                Terminals[ScheduledTerminal].rtc_mode = 0;   
             }
             if (fileType == 2){
                 PCB->FDT[i].fop_table_ptr = &file_fop;
-               Terminals[ActiveTerminal].rtc_mode = 0;    
+               Terminals[ScheduledTerminal].rtc_mode = 0;    
             }          
             break;
         }
@@ -270,7 +270,7 @@ int32_t close (int32_t fd){
     PCB->FDT[fd].file_position = 0;
     int closed = PCB->FDT[fd].fop_table_ptr->close(fd);
     PCB->FDT[fd].fop_table_ptr = &null_fop;
-    Terminals[ActiveTerminal].rtc_mode = 0; 
+    Terminals[ScheduledTerminal].rtc_mode = 0; 
     return closed;
 }
 
@@ -320,7 +320,15 @@ int32_t vidmap (uint8_t** screen_start){
 
     page_table_vidmap[0].present = 1;
     page_table_vidmap[0].user_supervisor = 1;
-    page_table_vidmap[0].addr = 0xB8;
+    if(ActiveTerminal == ScheduledTerminal) // need to add for CP 5. 
+    {
+         page_table_vidmap[0].addr = 0xB8;
+    }
+    else
+    {
+        page_table_vidmap[0].addr = 0xB8 + 1 + ScheduledTerminal;
+    }
+   
 
     do {                                    \
 		asm volatile ("call flush_tlb"      \
@@ -328,7 +336,7 @@ int32_t vidmap (uint8_t** screen_start){
 	} while (0);
 
     *screen_start = (uint8_t*)(0x8800000); // start of virtual memory
-    return 0;
+    return 0x8800000;
 }
 
 //These two system calls are extra credit according to the footer on the assignment

@@ -4,7 +4,7 @@
 
 #define HZ 100
 #define RATE 1193180
-#define DEFAULT_TICKS 18
+#define DEFAULT_TICKS 1 //was 18
 extern void pit_init();
 extern void pit_handler();
 #endif
